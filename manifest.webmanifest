@@ -1,0 +1,9 @@
+{
+  "name": "暗記クエスト",
+  "short_name": "暗記クエスト",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d1321",
+  "theme_color": "#0d1321",
+  "icons": []
+}

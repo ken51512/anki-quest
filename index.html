@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1321">
+<link rel="manifest" href="manifest.webmanifest">
+<title>暗記クエスト</title>
+<style>
+:root{--bg:#0d1321;--card:#18233b;--gold:#ffd166;--ok:#4ade80;--bad:#fb7185;--text:#f8fafc;--muted:#a9b6cc}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:linear-gradient(#0d1321,#111b31);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;min-height:100%}
+body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.wrap{max-width:520px;margin:auto;padding:18px 16px 40px}.top{display:flex;justify-content:space-between;align-items:center}.pill{background:#263654;border-radius:999px;padding:8px 12px;font-weight:800}
+h1{font-size:27px;margin:20px 0 4px}.sub{color:var(--muted);margin-bottom:18px}.card{background:var(--card);border:1px solid #304364;border-radius:22px;padding:20px;box-shadow:0 12px 35px #0005}
+.rank{font-size:42px;text-align:center}.rankname{text-align:center;font-weight:900;font-size:23px;color:var(--gold)}
+.progress{height:12px;background:#263654;border-radius:20px;overflow:hidden;margin:16px 0}.bar{height:100%;background:linear-gradient(90deg,#4ade80,#ffd166);width:0;transition:.3s}
+button{touch-action:manipulation;width:100%;border:0;border-radius:16px;padding:16px;margin-top:10px;font-size:17px;font-weight:900;background:#2b4166;color:white;cursor:pointer}
+button.primary{background:var(--gold);color:#172033}button.choice{text-align:left;min-height:58px}button:active{transform:scale(.99)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.stat{background:#22304d;border-radius:15px;padding:12px;text-align:center}.big{font-size:24px;font-weight:900}
+.q{font-size:22px;font-weight:900;line-height:1.45;margin:18px 0}.tiny{color:var(--muted);font-size:13px}.feedback{margin-top:14px;padding:13px;border-radius:14px;font-weight:800}.good{background:#164e3b}.wrong{background:#5b2331}
+.hidden{display:none!important}.center{text-align:center}.delta.up{color:var(--ok)}.delta.down{color:var(--bad)}
+.combo{color:#fb923c;font-weight:900}.resultScore{font-size:54px;font-weight:1000;text-align:center;margin:8px}.history{margin-top:14px;color:var(--muted)}
+.note{margin-top:12px;background:#111a2e;border-radius:12px;padding:10px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><div class="pill">🧠 暗記クエスト</div><div class="pill">🔥 <span id="streak">0</span></div></div>
+
+<section id="home">
+<h1>理科｜大地の変化</h1><div class="sub">昨日の自分を倒せ。</div>
+<div class="card">
+<div class="rank" id="homeIcon">🐣</div><div class="rankname" id="homeRank">未挑戦</div>
+<div class="stats"><div class="stat">前回<div class="big" id="prev">--%</div></div><div class="stat">自己ベスト<div class="big" id="best">--%</div></div></div>
+<div class="tiny center">正式ABC：C 0–39% / B 40–79% / A 80–100%</div>
+<button id="startBtn" class="primary">⚔️ クエスト開始</button>
+<button id="resetBtn">履歴をリセット</button>
+<div class="note">この版はSafariで動作させる実機テスト用です。履歴はこのiPhone内に保存されます。</div>
+</div></section>
+
+<section id="game" class="hidden">
+<div class="top"><div>問題 <span id="num">1</span>/10</div><div class="combo">⚡ <span id="combo">0</span> COMBO</div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="card">
+<div class="tiny" id="mode"></div><div class="q" id="question"></div><div id="choices"></div>
+<div id="feedback"></div><button id="next" class="primary hidden">次へ ▶</button>
+</div></section>
+
+<section id="result" class="hidden">
+<h1 class="center">QUEST CLEAR!</h1><div class="card">
+<div class="rank" id="resIcon"></div><div class="rankname" id="resRank"></div>
+<div class="resultScore" id="score"></div><div class="center" id="abc"></div>
+<div class="stats"><div class="stat">前回<div class="big" id="rprev"></div></div><div class="stat">今回との差<div class="big delta" id="delta"></div></div></div>
+<div class="center">最高コンボ <b id="maxcombo"></b>　／　獲得XP <b id="xp"></b></div>
+<div class="history" id="message"></div>
+<button id="homeBtn" class="primary">🏠 マップへ戻る</button><button id="retryBtn">もう一度挑戦</button>
+</div></section>
+</div>
+<script>
+"use strict";
+const facts=[
+{id:"erosion",term:"侵食",meaning:"流水が地面をけずる働き",wrong:["運搬","堆積","隆起"]},
+{id:"transport",term:"運搬",meaning:"流水がれき・砂・泥などを運ぶ働き",wrong:["侵食","堆積","沈降"]},
+{id:"deposit",term:"堆積",meaning:"運ばれたものが積もる働き",wrong:["侵食","運搬","しゅう曲"]},
+{id:"facies",term:"示相化石",meaning:"地層ができた当時の環境を知る手がかり",wrong:["示準化石","火山灰","断層"]},
+{id:"index",term:"示準化石",meaning:"地層ができた年代を知る手がかり",wrong:["示相化石","泥岩","震央"]},
+{id:"volcanic",term:"火山岩",meaning:"マグマが地表付近で比較的急に冷えてできる火成岩",wrong:["深成岩","堆積岩","変成岩"]},
+{id:"plutonic",term:"深成岩",meaning:"マグマが地下深くでゆっくり冷えてできる火成岩",wrong:["火山岩","砂岩","れき岩"]},
+{id:"focus",term:"震源",meaning:"地下で地震が発生した場所",wrong:["震央","震度","震源距離"]},
+{id:"epicenter",term:"震央",meaning:"震源の真上にある地表の地点",wrong:["震源","断層","初期微動"]},
+{id:"fault",term:"断層",meaning:"地層や岩盤が割れてずれたもの",wrong:["しゅう曲","隆起","堆積"]}
+];
+let queue=[],idx=0,correct=0,combo=0,maxCombo=0,xp=0,locked=false;
+const $=id=>document.getElementById(id);
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+function rank(p){if(p>=95)return["👑","伝説の勇者"];if(p>=90)return["⚔️","勇者"];if(p>=80)return["🛡️","熟練戦士"];if(p>=60)return["🗡️","一般兵"];if(p>=40)return["🪖","見習い兵"];return["🐣","ざこ"]}
+function abc(p){return p>=80?"A":p>=40?"B":"C"}
+function getHistory(){try{return JSON.parse(localStorage.getItem("anki-earth-history")||"[]")}catch(e){return[]}}
+function updateHome(){const h=getHistory(),p=h.length?h[h.length-1].score:null,b=h.length?Math.max(...h.map(x=>x.score)):null,r=rank(p??0);$("prev").textContent=p==null?"--%":p+"%";$("best").textContent=b==null?"--%":b+"%";$("homeIcon").textContent=p==null?"🐣":r[0];$("homeRank").textContent=p==null?"未挑戦":r[1]}
+function startGame(){idx=correct=combo=maxCombo=xp=0;queue=shuffle(facts).slice(0,10).map((f,i)=>({...f,reverse:i%2===1}));$("home").classList.add("hidden");$("result").classList.add("hidden");$("game").classList.remove("hidden");showQ()}
+function showQ(){locked=false;$("next").classList.add("hidden");$("feedback").innerHTML="";const q=queue[idx];$("num").textContent=idx+1;$("combo").textContent=combo;$("bar").style.width=(idx/10*100)+"%";$("mode").textContent=q.reverse?"🔄 逆方向問題｜言葉 → 意味":"🎯 正方向問題｜意味 → 言葉";$("question").textContent=q.reverse?`「${q.term}」とはどれ？`:q.meaning+"。これは何？";let opts=q.reverse?[q.meaning,...meaningWrongs(q)]:[q.term,...q.wrong];opts=shuffle(opts);$("choices").innerHTML="";opts.forEach(o=>{const b=document.createElement("button");b.className="choice";b.textContent=o;b.addEventListener("click",()=>answer(o));$("choices").appendChild(b)})}
+function meaningWrongs(q){return shuffle(facts.filter(f=>f.id!==q.id).map(f=>f.meaning)).slice(0,3)}
+function answer(o){if(locked)return;locked=true;const q=queue[idx],ans=q.reverse?q.meaning:q.term,ok=o===ans,fb=$("feedback");if(ok){correct++;combo++;maxCombo=Math.max(maxCombo,combo);const gain=10+Math.min(combo,5)*2;xp+=gain;fb.className="feedback good";fb.textContent=`⭕ 正解！ +${gain} XP`}else{combo=0;fb.className="feedback wrong";fb.innerHTML=`❌ ちがう！<br>正解：${ans}<br><span class="tiny">この知識は復習対象になります。</span>`}$("combo").textContent=combo;$("next").classList.remove("hidden")}
+function nextQ(){idx++;idx>=10?finish():showQ()}
+function finish(){const score=Math.round(correct/10*100),h=getHistory(),prev=h.length?h[h.length-1].score:null,r=rank(score);h.push({score,date:new Date().toISOString(),maxCombo,xp});try{localStorage.setItem("anki-earth-history",JSON.stringify(h))}catch(e){}$("game").classList.add("hidden");$("result").classList.remove("hidden");$("resIcon").textContent=r[0];$("resRank").textContent=r[1];$("score").textContent=score+"%";$("abc").textContent="正式判定："+abc(score);$("rprev").textContent=prev==null?"初回":prev+"%";const d=prev==null?null:score-prev;$("delta").textContent=d==null?"—":(d>=0?"+":"")+d+"pt";$("delta").className="big delta "+(d>=0?"up":"down");$("maxcombo").textContent=maxCombo;$("xp").textContent=xp;$("message").textContent=prev==null?"初回記録を保存しました。次回から前回の自分と対決できます。":d>0?"🏆 前回の自分に勝利！":d===0?"⚔️ 前回と同点。次は自己ベストを狙おう。":"💪 苦手を復習して再戦しよう。 "}
+function goHome(){$("result").classList.add("hidden");$("home").classList.remove("hidden");updateHome()}
+$("startBtn").addEventListener("click",startGame);
+$("next").addEventListener("click",nextQ);
+$("homeBtn").addEventListener("click",goHome);
+$("retryBtn").addEventListener("click",startGame);
+$("resetBtn").addEventListener("click",()=>{if(confirm("このiPhoneの試験履歴を消しますか？")){localStorage.removeItem("anki-earth-history");updateHome()}});
+updateHome();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+</script>
+</body></html>
