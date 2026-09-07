@@ -44,7 +44,7 @@ button.back{width:auto;margin:0;padding:8px 12px}
 <body><div class="wrap">
 
 <section id="world">
-<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v4</div></div>
+<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v4.1</div></div>
 <h1>知識王国マップ</h1><div class="sub">支配地域を広げて、知識の領土を奪え。</div>
 
 <div class="card">
@@ -122,7 +122,18 @@ function key(id){return "aq4-"+id}
 function hist(id){try{return JSON.parse(localStorage.getItem(key(id))||"[]")}catch(e){return[]}}
 function mastery(id){
   let m={};
-  hist(id).forEach(r=>Object.entries(r.fields||{}).forEach(([f,s])=>m[f]=m[f]===undefined?s:Math.round(m[f]*.6+s*.4)));
+  hist(id).forEach(r=>Object.entries(r.fields||{}).forEach(([f,s])=>{
+    if(m[f]===undefined){
+      m[f]=s;
+    }else if(s===100){
+      // 再討伐でその小フィールドを全問正解したら完全制圧を許可する。
+      // 過去の誤答履歴は履歴として残すが、支配率を99%に固定しない。
+      m[f]=100;
+    }else{
+      m[f]=m[f]*0.6+s*0.4;
+    }
+  }));
+  Object.keys(m).forEach(f=>m[f]=Math.round(m[f]));
   return m;
 }
 function areaScore(id){
