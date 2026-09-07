@@ -4,67 +4,257 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0b1020">
-<title>暗記クエスト｜大地の変化</title>
+<link rel="manifest" href="manifest.webmanifest">
+<title>暗記クエスト</title>
 <style>
-:root{--bg:#0b1020;--card:#17233b;--card2:#22304d;--gold:#ffd166;--ok:#4ade80;--bad:#fb7185;--text:#f8fafc;--muted:#a9b6cc;--line:#34486d}
+:root{--gold:#ffd166;--muted:#a9b6cc;--text:#f8fafc}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;min-height:100%;background:radial-gradient(circle at top,#1e355b 0,#0b1020 44%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
-body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
-.wrap{max-width:540px;margin:auto;padding:16px 15px 44px}.top{display:flex;justify-content:space-between;align-items:center;gap:8px}.pill{background:#263654;border-radius:999px;padding:8px 11px;font-weight:900;font-size:14px}
-h1{font-size:27px;margin:20px 0 4px}.sub,.tiny{color:var(--muted)}.sub{margin-bottom:16px}.card{background:linear-gradient(145deg,#18233b,#131d32);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 14px 35px #0006;margin-bottom:14px}.center{text-align:center}.rank{font-size:48px;text-align:center}.rankname{text-align:center;font-size:23px;font-weight:1000;color:var(--gold)}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:13px 0}.stat{background:var(--card2);padding:11px;border-radius:14px;text-align:center}.big{font-size:23px;font-weight:1000}.progress{height:12px;background:#263654;border-radius:20px;overflow:hidden;margin:12px 0}.bar{height:100%;background:linear-gradient(90deg,#4ade80,#ffd166);transition:.35s}
-button{touch-action:manipulation;width:100%;border:0;border-radius:16px;padding:15px;margin-top:9px;font-size:17px;font-weight:1000;background:#2b4166;color:white;cursor:pointer}button.primary{background:var(--gold);color:#172033}button.choice{text-align:left;min-height:58px}button:active{transform:scale(.99)}.hidden{display:none!important}.map{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.tile{background:#202e49;border:1px solid var(--line);border-radius:15px;padding:11px}.tile strong{display:block}.tile span{font-size:12px;color:var(--muted)}
-.monster{font-size:82px;text-align:center;filter:drop-shadow(0 8px 12px #0008);margin:4px}.monsterName{text-align:center;font-size:20px;font-weight:1000;color:#ffcf70}.hp{height:13px;background:#431d2a;border-radius:20px;overflow:hidden;margin:8px 0 16px}.hpbar{height:100%;background:#fb7185;transition:.35s}.q{font-size:21px;font-weight:900;line-height:1.45;margin:15px 0}.feedback{padding:12px;border-radius:13px;margin-top:12px;font-weight:900}.good{background:#164e3b}.wrong{background:#5b2331}.battleResult{font-size:34px;font-weight:1000;text-align:center;color:var(--gold)}.conquest{font-size:46px;font-weight:1000;text-align:center}.delta.up{color:var(--ok)}.delta.down{color:var(--bad)}.note{font-size:12px;color:var(--muted);background:#10192b;padding:10px;border-radius:12px;margin-top:10px}hr{border:0;border-top:1px solid var(--line);margin:18px 0}.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#2a3c5f;font-size:12px;font-weight:900;margin:2px}
+body{margin:0;background:radial-gradient(circle at top,#1c3155,#0b1020 45%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;min-height:100vh}
+.wrap{max-width:560px;margin:auto;padding:18px 15px 50px}
+.top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.pill{background:#263654;border-radius:999px;padding:8px 11px;font-weight:900}
+h1{font-size:27px;margin:20px 0 5px} h2{margin:0 0 12px}
+.sub,.tiny{color:var(--muted)}
+.card{background:linear-gradient(145deg,#18233b,#131d32);border:1px solid #34486d;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 14px 35px #0006}
+button{width:100%;border:0;border-radius:16px;padding:15px;margin-top:9px;font-size:17px;font-weight:900;background:#2b4166;color:white}
+button.primary{background:var(--gold);color:#172033}
+button.back{width:auto;margin:0;padding:8px 12px}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.unit{text-align:left;min-height:145px;margin:0;background:#202e49;border:1px solid #34486d}
+.unit .ico{font-size:34px} .unit b{display:block;font-size:16px;margin:6px 0}
+.indicator{height:11px;background:#263654;border-radius:20px;overflow:hidden;margin-top:9px}
+.bar{height:100%;background:linear-gradient(90deg,#4ade80,#ffd166);transition:.3s}
+.pct{font-size:13px;color:var(--muted);margin-top:5px}
+.bigArea{font-size:46px;font-weight:900}
+.next{font-size:13px;color:#ffd166;margin-top:6px}
+.monster{font-size:78px;text-align:center} .monsterName{text-align:center;color:var(--gold);font-size:21px;font-weight:900}
+.hp{height:13px;background:#431d2a;border-radius:20px;overflow:hidden} .hpbar{height:100%;background:#fb7185;transition:.3s}
+.q{font-size:21px;font-weight:900;line-height:1.45;margin:15px 0} .choice{text-align:left}
+.feedback{padding:12px;border-radius:13px;margin-top:12px;font-weight:900} .good{background:#164e3b} .wrong{background:#5b2331}
+.center{text-align:center} .score{font-size:58px;font-weight:900} .battle{font-size:32px;color:var(--gold);font-weight:900}
+.rank{font-size:45px} .rankname{font-size:22px;color:var(--gold);font-weight:900}
+.progress{height:12px;background:#263654;border-radius:20px;overflow:hidden;margin:12px 0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px} .stat{background:#22304d;padding:11px;border-radius:14px;text-align:center} .big{font-size:22px;font-weight:900}
+.fieldCard{background:#202e49;border:1px solid #34486d;border-radius:15px;padding:12px}
+.kingdomBar{margin:8px 0 14px}
 </style>
 </head>
-<body>
-<div class="wrap">
-<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">🏰 地学王国</div></div>
-<section id="home">
-<h1>大地の変化エリア</h1><div class="sub">モンスターを倒して、知識の領土を奪え。</div>
-<div class="card center"><div class="rank" id="heroIcon">🐣</div><div class="rankname" id="heroRank">未挑戦</div><div class="stats"><div class="stat">前回<div class="big" id="prev">--%</div></div><div class="stat">自己ベスト<div class="big" id="best">--%</div></div></div><div class="conquest" id="conquest">0%</div><div class="tiny">大地の変化エリア 支配率</div><div class="rankname" id="lordRank">未支配</div><div class="progress"><div class="bar" id="areaBar" style="width:0"></div></div><button class="primary" id="startBtn">👹 モンスター討伐へ</button><button id="resetBtn">戦績をリセット</button></div>
-<div class="card"><strong>🗺️ 支配フィールド</strong><div class="map" id="map"></div><div class="note">正式評価は別軸で保存：演習ABC＝C 0–39% / B 40–79% / A 80–100%。ゲーム称号は子ども向けの表示です。</div></div>
+<body><div class="wrap">
+
+<section id="world">
+<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v4</div></div>
+<h1>知識王国マップ</h1><div class="sub">支配地域を広げて、知識の領土を奪え。</div>
+
+<div class="card">
+<h2>🔬 理科王国</h2>
+<div class="tiny">王国制覇率 <span id="scienceRate">0%</span></div>
+<div class="indicator kingdomBar"><div class="bar" id="scienceBar"></div></div>
+<div class="grid" id="science"></div>
+</div>
+
+<div class="card">
+<h2>🗾 社会王国</h2>
+<div class="tiny">王国制覇率 <span id="socialRate">0%</span></div>
+<div class="indicator kingdomBar"><div class="bar" id="socialBar"></div></div>
+<div class="grid" id="social"></div>
+</div>
 </section>
-<section id="game" class="hidden"><div class="top"><div>敵 <b id="num">1</b>/10</div><div class="pill">🔥 <span id="combo">0</span> COMBO</div></div><div class="progress"><div class="bar" id="battleBar"></div></div><div class="card"><div class="monster" id="monster">👹</div><div class="monsterName" id="monsterName">侵食オーガ</div><div class="hp"><div class="hpbar" id="hp"></div></div><div class="tiny" id="mode"></div><div class="q" id="question"></div><div id="choices"></div><div id="feedback"></div><button class="primary hidden" id="nextBtn">次の敵へ ▶</button></div></section>
-<section id="result" class="hidden"><h1 class="center">⚔️ 戦闘結果</h1><div class="card"><div class="battleResult" id="battleResult"></div><div class="conquest" id="score"></div><div class="center" id="abc"></div><div class="stats"><div class="stat">前回<div class="big" id="rprev"></div></div><div class="stat">成長<div class="big delta" id="delta"></div></div></div><hr><div class="center"><div class="rank" id="resIcon"></div><div class="rankname" id="resHero"></div><div class="tiny">この戦闘での戦士ランク</div></div><div class="stats"><div class="stat">エリア支配率<div class="big" id="resConquest"></div></div><div class="stat">領主ランク<div class="big" id="resLord" style="font-size:16px"></div></div></div><div id="fieldBadges" class="center"></div><div id="message" class="note"></div><button class="primary" id="homeBtn">🗺️ 領土マップへ</button><button id="retryBtn">⚔️ 再戦する</button></div></section>
+
+<section id="area" class="hidden">
+<div class="top"><button class="back" onclick="showWorld()">← 王国</button><div class="pill" id="subjectPill"></div></div>
+<h1 id="areaTitle"></h1><div class="sub">小フィールドを攻略して支配率を上げろ。</div>
+<div class="card center">
+<div class="bigArea" id="areaPct">0%</div>
+<div id="areaState"></div>
+<div class="progress"><div class="bar" id="areaBar"></div></div>
+<div class="next" id="nextGoal"></div>
+</div>
+<div class="card">
+<div id="fieldMap" class="grid"></div>
+<button class="primary" id="startBtn">👹 モンスター討伐へ</button>
+</div>
+</section>
+
+<section id="game" class="hidden">
+<div class="top"><div>敵 <b id="num"></b>/10</div><div class="pill">🔥 <span id="combo">0</span> COMBO</div></div>
+<div class="progress"><div class="bar" id="battleBar"></div></div>
+<div class="card">
+<div class="monster" id="monster"></div>
+<div class="monsterName" id="monsterName"></div>
+<div class="hp"><div class="hpbar" id="hp"></div></div>
+<p class="tiny" id="mode"></p>
+<div class="q" id="question"></div>
+<div id="choices"></div>
+<div id="feedback"></div>
+<button class="primary hidden" id="nextBtn">次の敵へ ▶</button>
+</div>
+</section>
+
+<section id="result" class="hidden">
+<h1 class="center">⚔️ 戦闘結果</h1>
+<div class="card center">
+<div class="battle" id="battleResult"></div>
+<div class="score" id="score"></div>
+<div id="abc"></div>
+<hr style="border-color:#34486d;margin:20px 0">
+<div class="rank" id="rankIcon"></div>
+<div class="rankname" id="rankName"></div>
+<div class="tiny">この単元での戦士ランク</div>
+<div class="stats" style="margin-top:15px">
+<div class="stat">前回<div class="big" id="prev"></div></div>
+<div class="stat">成長<div class="big" id="delta"></div></div>
+</div>
+<button class="primary" id="mapBtn">🗺️ 支配マップへ</button>
+<button id="retryBtn">⚔️ 再戦</button>
+</div>
+</section>
+
 </div>
 <script>
 "use strict";
-const facts=[
-{id:"erosion",field:"流水",term:"侵食",meaning:"流水が地面をけずる働き",wrong:["運搬","堆積","隆起"]},
-{id:"transport",field:"流水",term:"運搬",meaning:"流水がれき・砂・泥などを運ぶ働き",wrong:["侵食","堆積","沈降"]},
-{id:"deposit",field:"地層",term:"堆積",meaning:"運ばれたものが積もる働き",wrong:["侵食","運搬","しゅう曲"]},
-{id:"facies",field:"化石",term:"示相化石",meaning:"地層ができた当時の環境を知る手がかり",wrong:["示準化石","火山灰","断層"]},
-{id:"index",field:"化石",term:"示準化石",meaning:"地層ができた年代を知る手がかり",wrong:["示相化石","泥岩","震央"]},
-{id:"volcanic",field:"火山",term:"火山岩",meaning:"マグマが地表付近で比較的急に冷えてできる火成岩",wrong:["深成岩","堆積岩","変成岩"]},
-{id:"plutonic",field:"火山",term:"深成岩",meaning:"マグマが地下深くでゆっくり冷えてできる火成岩",wrong:["火山岩","砂岩","れき岩"]},
-{id:"focus",field:"地震",term:"震源",meaning:"地下で地震が発生した場所",wrong:["震央","震度","震源距離"]},
-{id:"epicenter",field:"地震",term:"震央",meaning:"震源の真上にある地表の地点",wrong:["震源","断層","初期微動"]},
-{id:"fault",field:"地殻変動",term:"断層",meaning:"地層や岩盤が割れてずれたもの",wrong:["しゅう曲","隆起","堆積"]}
-];
-const FIELD_LIST=["流水","地層","化石","火山","地震","地殻変動"];
-const MONSTERS=["👹","👺","🧌","🐲","🦂","🦇","🐍","🦖","👻","💀"];
-const MONSTER_NAMES=["侵食オーガ","運搬ゴブリン","堆積スライム","化石ミミック","年代ゴーレム","火山ドラゴン","深成トロル","震源デーモン","震央ワイバーン","断層キング"];
-let queue=[],idx=0,correct=0,combo=0,locked=false,fieldScores={};
-const $=id=>document.getElementById(id),shuffle=a=>[...a].sort(()=>Math.random()-.5);
-function battleResult(p){if(p>=80)return"👑 完勝";if(p>=60)return"🏆 勝ち";if(p>=40)return"⚔️ 引き分け";if(p>=20)return"😵 負け";return"💀 ボロ負け"}
-function heroRank(p){if(p>=95)return["👑","最強の勇者"];if(p>=80)return["🛡️","勇者"];if(p>=60)return["⚔️","熟練戦士"];if(p>=40)return["🪖","モブ兵士"];return["🐣","クソ雑魚"]}
-function lordRank(p){if(p>=95)return"👑 覇王";if(p>=80)return"🏰 すげー領主";if(p>=60)return"🛡️ マシな領主";if(p>=40)return"🏚️ モブ領主";return"🪵 カス領主"}
-function abc(p){return p>=80?"A":p>=40?"B":"C"}
-function getHistory(){try{return JSON.parse(localStorage.getItem("anki-quest-territory-v1")||"[]")}catch(e){return[]}}
-function saveHistory(h){try{localStorage.setItem("anki-quest-territory-v1",JSON.stringify(h))}catch(e){}}
-function mastery(){const h=getHistory(),r={};h.forEach(run=>Object.entries(run.fields||{}).forEach(([f,s])=>{r[f]=r[f]===undefined?s:Math.round(r[f]*0.6+s*0.4)}));return r}
-function areaRate(){const m=mastery();return Math.round(FIELD_LIST.reduce((sum,f)=>sum+(m[f]||0),0)/FIELD_LIST.length)}
-function updateHome(){const h=getHistory(),prev=h.length?h[h.length-1].score:null,best=h.length?Math.max(...h.map(x=>x.score)):null,a=areaRate(),r=heroRank(prev??0),m=mastery();$("prev").textContent=prev===null?"--%":prev+"%";$("best").textContent=best===null?"--%":best+"%";$("heroIcon").textContent=prev===null?"🐣":r[0];$("heroRank").textContent=prev===null?"未挑戦":r[1];$("conquest").textContent=a+"%";$("lordRank").textContent=a===0?"未支配":lordRank(a);$("areaBar").style.width=a+"%";$("map").innerHTML=FIELD_LIST.map(f=>{const s=m[f]||0,flag=s>=80?"🏳️‍🌈":s>=40?"🚩":"🏴";return `<div class="tile"><strong>${flag} ${f}</strong><span>支配率 ${s}%</span></div>`}).join("")}
-function startGame(){idx=0;correct=0;combo=0;locked=false;fieldScores={};queue=shuffle(facts).map((f,i)=>({...f,reverse:i%2===1}));$("home").classList.add("hidden");$("result").classList.add("hidden");$("game").classList.remove("hidden");showQuestion()}
-function showQuestion(){locked=false;const q=queue[idx];$("num").textContent=idx+1;$("combo").textContent=combo;$("battleBar").style.width=(idx*10)+"%";$("monster").textContent=MONSTERS[idx];$("monsterName").textContent=MONSTER_NAMES[idx];$("hp").style.width="100%";$("mode").textContent=q.reverse?"🔄 逆方向攻撃｜言葉 → 意味":"🎯 正方向攻撃｜意味 → 言葉";$("question").textContent=q.reverse?`「${q.term}」とはどれ？`:`${q.meaning}。これは何？`;let options;if(q.reverse){const d=shuffle(facts.filter(f=>f.id!==q.id).map(f=>f.meaning)).slice(0,3);options=[q.meaning,...d]}else{options=[q.term,...q.wrong]}$("choices").innerHTML="";shuffle(options).forEach(o=>{const b=document.createElement("button");b.className="choice";b.textContent=o;b.addEventListener("click",()=>answer(o));$("choices").appendChild(b)});$("feedback").innerHTML="";$("nextBtn").classList.add("hidden")}
-function answer(selected){if(locked)return;locked=true;const q=queue[idx],correctAnswer=q.reverse?q.meaning:q.term,ok=selected===correctAnswer;if(!fieldScores[q.field])fieldScores[q.field]={c:0,n:0};fieldScores[q.field].n++;if(ok){correct++;combo++;fieldScores[q.field].c++;$("hp").style.width="0%";$("feedback").className="feedback good";$("feedback").textContent="💥 会心の一撃！ モンスター撃破！"}else{combo=0;$("hp").style.width="55%";$("feedback").className="feedback wrong";$("feedback").innerHTML=`💢 攻撃失敗！<br>正解：${correctAnswer}<br><span class="tiny">この敵は復習戦で再登場する。</span>`}$("combo").textContent=combo;$("nextBtn").classList.remove("hidden")}
-function nextQuestion(){idx++;idx>=10?finish():showQuestion()}
-function finish(){const score=correct*10,h=getHistory(),prev=h.length?h[h.length-1].score:null,fields={};Object.entries(fieldScores).forEach(([f,x])=>fields[f]=Math.round((x.c/x.n)*100));h.push({score,fields,date:new Date().toISOString()});saveHistory(h);$("game").classList.add("hidden");$("result").classList.remove("hidden");const hr=heroRank(score),a=areaRate(),d=prev===null?null:score-prev;$("battleResult").textContent=battleResult(score);$("score").textContent=score+"%";$("abc").textContent="正式ABC判定："+abc(score);$("rprev").textContent=prev===null?"初回":prev+"%";$("delta").textContent=d===null?"—":(d>=0?"+":"")+d+"pt";$("delta").className="big delta "+(d>=0?"up":"down");$("resIcon").textContent=hr[0];$("resHero").textContent=hr[1];$("resConquest").textContent=a+"%";$("resLord").textContent=lordRank(a);$("fieldBadges").innerHTML=Object.entries(fields).map(([f,s])=>`<span class="badge">${f} ${s}%</span>`).join("");$("message").textContent=prev===null?"初戦の戦績を保存。次回から前回の自分との成長差も表示される。":d>0?`前回より${d}ポイント上昇！ 知識領土を拡大した。`:d===0?"前回と互角。逆方向問題と復習戦で突破しよう。":"敵軍が反撃中。弱点フィールドを奪還しよう。"}
-function goHome(){$("result").classList.add("hidden");$("home").classList.remove("hidden");updateHome()}
-$("startBtn").addEventListener("click",startGame);$("nextBtn").addEventListener("click",nextQuestion);$("retryBtn").addEventListener("click",startGame);$("homeBtn").addEventListener("click",goHome);$("resetBtn").addEventListener("click",()=>{if(confirm("このiPhoneの戦績と支配率をリセットしますか？")){localStorage.removeItem("anki-quest-territory-v1");updateHome()}});updateHome();
+const U={"earth": {"subject": "理科", "name": "大地の変化", "icon": "🌋", "facts": [["流水", "侵食", "流水が地面をけずる働き", ["運搬", "堆積", "隆起"]], ["流水", "運搬", "流水がれき・砂・泥などを運ぶ働き", ["侵食", "堆積", "沈降"]], ["地層", "堆積", "運ばれたものが積もる働き", ["侵食", "運搬", "しゅう曲"]], ["化石", "示相化石", "地層ができた当時の環境を知る手がかり", ["示準化石", "火山灰", "断層"]], ["化石", "示準化石", "地層ができた年代を知る手がかり", ["示相化石", "泥岩", "震央"]], ["火山", "火山岩", "マグマが地表付近で比較的急に冷えてできる火成岩", ["深成岩", "堆積岩", "変成岩"]], ["火山", "深成岩", "マグマが地下深くでゆっくり冷えてできる火成岩", ["火山岩", "砂岩", "れき岩"]], ["地震", "震源", "地下で地震が発生した場所", ["震央", "震度", "震源距離"]], ["地震", "震央", "震源の真上にある地表の地点", ["震源", "断層", "初期微動"]], ["地殻変動", "断層", "地層や岩盤が割れてずれたもの", ["しゅう曲", "隆起", "堆積"]]]}, "solution": {"subject": "理科", "name": "水溶液", "icon": "🧪", "facts": [["溶解", "溶質", "水溶液に溶けている物質", ["溶媒", "溶液", "結晶"]], ["溶解", "溶媒", "物質を溶かしている液体", ["溶質", "結晶", "飽和"]], ["溶解", "水溶液", "水を溶媒とする溶液", ["溶質", "結晶", "混合物"]], ["溶解度", "溶解度", "一定量の水に溶ける物質の限度を表す量", ["濃度", "密度", "湿度"]], ["飽和", "飽和水溶液", "その温度で物質が限度まで溶けた水溶液", ["希薄水溶液", "蒸留水", "中和液"]], ["再結晶", "再結晶", "溶解度の差などを利用して結晶を取り出す操作", ["中和", "蒸留", "ろ過"]], ["性質", "酸性", "青色リトマス紙を赤色に変える性質", ["中性", "アルカリ性", "飽和"]], ["性質", "アルカリ性", "赤色リトマス紙を青色に変える性質", ["酸性", "中性", "飽和"]], ["指示薬", "BTB溶液", "酸性で黄色・中性で緑色・アルカリ性で青色になる指示薬", ["石灰水", "ヨウ素液", "ベネジクト液"]], ["中和", "中和", "酸性の水溶液とアルカリ性の水溶液を混ぜ、互いの性質を打ち消し合う反応", ["溶解", "再結晶", "燃焼"]]]}, "sunheat": {"subject": "理科", "name": "太陽の熱がもたらす変化", "icon": "☀️", "facts": [["太陽", "日射", "太陽から地表に届く光や熱のエネルギー", ["放射冷却", "凝結", "季節風"]], ["地面", "地温", "地面の温度", ["気圧", "湿度", "露点"]], ["気温", "気温", "空気の温度", ["地温", "水温", "湿度"]], ["加熱", "日なた", "日光が直接当たり、一般に日陰より地面が温まりやすい場所", ["日陰", "露点", "風下"]], ["冷却", "放射冷却", "地表が熱を放出して冷える現象", ["凝結", "蒸発", "対流"]], ["水", "蒸発", "液体の水が水蒸気になる現象", ["凝結", "融解", "凝固"]], ["雲", "凝結", "水蒸気が冷えて細かな水滴などになる現象", ["蒸発", "沸騰", "融解"]], ["空気", "上昇気流", "空気が上向きに動く流れ", ["下降気流", "海流", "季節風"]], ["海陸", "海風", "昼、海から陸へ向かって吹きやすい風", ["陸風", "季節風", "偏西風"]], ["海陸", "陸風", "夜、陸から海へ向かって吹きやすい風", ["海風", "季節風", "偏西風"]]]}, "weather": {"subject": "理科", "name": "四季と天気", "icon": "🌦️", "facts": [["天気要素", "気圧", "空気の重さによる圧力", ["湿度", "気温", "風速"]], ["雲と雨", "上昇気流", "雲ができやすくなる空気の上向きの流れ", ["下降気流", "海流", "季節風"]], ["前線", "寒冷前線", "寒気が暖気の下にもぐり込みながら進む前線", ["温暖前線", "停滞前線", "閉塞前線"]], ["前線", "温暖前線", "暖気が寒気の上にはい上がりながら進む前線", ["寒冷前線", "停滞前線", "閉塞前線"]], ["気団", "シベリア気団", "冬の日本に強く影響する冷たく乾燥した気団", ["小笠原気団", "オホーツク海気団", "揚子江気団"]], ["気団", "小笠原気団", "夏の日本に強く影響する暖かく湿った気団", ["シベリア気団", "オホーツク海気団", "揚子江気団"]], ["季節", "梅雨", "初夏に日本付近で雨や曇りの日が続く時期", ["秋雨", "台風", "春一番"]], ["季節", "季節風", "季節によって風向が大きく変わる風", ["海風", "陸風", "偏西風"]], ["日本", "日本海側", "冬に雪や雨の日が多くなりやすい地域", ["太平洋側", "瀬戸内", "南西諸島"]], ["日本", "太平洋側", "冬に晴れて乾燥する日が多くなりやすい地域", ["日本海側", "北海道", "中央高地"]]]}, "landform": {"subject": "社会", "name": "日本の地形・国土", "icon": "🗾", "facts": [["国土", "北海道", "日本の主要4島のうち最も北にある島", ["本州", "四国", "九州"]], ["国土", "本州", "日本の主要4島のうち最も面積が大きい島", ["北海道", "四国", "九州"]], ["地方", "8地方区分", "北海道・東北・関東・中部・近畿・中国・四国・九州", ["6地方区分", "7地方区分", "10地方区分"]], ["山地", "日本アルプス", "飛騨・木曽・赤石の3山脈の総称", ["奥羽山脈", "中国山地", "九州山地"]], ["平野", "関東平野", "日本で最も広い平野", ["濃尾平野", "石狩平野", "大阪平野"]], ["平野", "石狩平野", "北海道西部に広がる平野", ["関東平野", "筑紫平野", "仙台平野"]], ["盆地", "甲府盆地", "山梨県中央部にある盆地", ["奈良盆地", "山形盆地", "京都盆地"]], ["河川", "信濃川", "日本で最も長い川", ["利根川", "石狩川", "最上川"]], ["河川", "利根川", "日本で流域面積が最も広い川", ["信濃川", "木曽川", "北上川"]], ["湖", "琵琶湖", "日本で最も面積が大きい湖", ["霞ヶ浦", "サロマ湖", "猪苗代湖"]]]}, "climate": {"subject": "社会", "name": "日本の気候", "icon": "🌤️", "facts": [["日本海側", "冬の降雪", "日本海側で冬に雪が多くなる主な季節", ["夏", "春", "秋"]], ["太平洋側", "冬の晴天", "太平洋側で冬に多くなりやすい天気", ["雪の日", "雨の日", "霧の日"]], ["瀬戸内", "少雨", "瀬戸内の気候の代表的な特徴", ["年中多雨", "冬の豪雪", "一年中低温"]], ["中央高地", "年較差", "中央高地で比較的大きくなりやすい気温の差", ["日照時間", "降水量", "湿度"]], ["北海道", "梅雨", "北海道では一般に本州などほど明瞭ではないもの", ["冬", "台風", "降雪"]], ["南西諸島", "高温", "南西諸島の気候の特徴", ["低温", "乾燥", "寒冷"]], ["季節風", "北西", "冬に日本付近で卓越しやすい季節風の向き", ["南東", "北東", "南西"]], ["海流", "黒潮", "日本の南岸を北東へ流れる暖流", ["親潮", "リマン海流", "千島海流"]], ["海流", "親潮", "北海道・東北沖へ南下する寒流", ["黒潮", "対馬海流", "日本海流"]], ["気候因果", "山地", "季節風を受ける側と反対側で降水・降雪の差を生む重要な地形", ["平野", "盆地", "台地"]]]}};
+let unitId=null,queue=[],idx=0,correct=0,combo=0,fields={},locked=false;
+const $=x=>document.getElementById(x),sh=a=>[...a].sort(()=>Math.random()-.5);
+
+function key(id){return "aq4-"+id}
+function hist(id){try{return JSON.parse(localStorage.getItem(key(id))||"[]")}catch(e){return[]}}
+function mastery(id){
+  let m={};
+  hist(id).forEach(r=>Object.entries(r.fields||{}).forEach(([f,s])=>m[f]=m[f]===undefined?s:Math.round(m[f]*.6+s*.4)));
+  return m;
+}
+function areaScore(id){
+  let fs=[...new Set(U[id].facts.map(x=>x[0]))],m=mastery(id);
+  return Math.round(fs.reduce((a,f)=>a+(m[f]||0),0)/fs.length);
+}
+function state(p){return p===0?"未踏":p<40?"侵攻中":p<60?"係争地域":p<80?"優勢":p<100?"支配地域":"完全制圧"}
+function nextGoal(p){
+  if(p===0) return "最初の1%を奪い取れ";
+  if(p<40) return `あと ${40-p}% で「係争地域」`;
+  if(p<60) return `あと ${60-p}% で「優勢」`;
+  if(p<80) return `あと ${80-p}% で「支配地域」`;
+  if(p<100) return `あと ${100-p}% で「完全制圧」`;
+  return "🎉 完全制圧達成";
+}
+function hero(p){return p>=95?["👑","最強の勇者"]:p>=80?["🛡️","勇者"]:p>=60?["⚔️","熟練戦士"]:p>=40?["🪖","モブ兵士"]:["🐣","クソ雑魚"]}
+function battle(p){return p>=80?"👑 完勝":p>=60?"🏆 勝ち":p>=40?"⚔️ 引き分け":p>=20?"😵 負け":"💀 ボロ負け"}
+
+function kingdomScore(subject){
+  let ids=Object.keys(U).filter(id=>U[id].subject===subject);
+  return Math.round(ids.reduce((a,id)=>a+areaScore(id),0)/ids.length);
+}
+
+function renderWorld(){
+  $("science").innerHTML=""; $("social").innerHTML="";
+  let sr=kingdomScore("理科"), so=kingdomScore("社会");
+  $("scienceRate").textContent=sr+"%"; $("scienceBar").style.width=sr+"%";
+  $("socialRate").textContent=so+"%"; $("socialBar").style.width=so+"%";
+
+  Object.entries(U).forEach(([id,u])=>{
+    let p=areaScore(id),b=document.createElement("button");
+    b.className="unit";
+    b.innerHTML=`<div class="ico">${u.icon}</div><b>${u.name}</b>
+    <div class="indicator"><div class="bar" style="width:${p}%"></div></div>
+    <div class="pct">支配率 ${p}%｜${state(p)}</div>
+    <div class="next">${nextGoal(p)}</div>`;
+    b.onclick=()=>openArea(id);
+    $(u.subject==="理科"?"science":"social").appendChild(b);
+  });
+}
+
+function showWorld(){
+  $("area").classList.add("hidden"); $("result").classList.add("hidden"); $("world").classList.remove("hidden");
+  renderWorld();
+}
+
+function openArea(id){
+  unitId=id;
+  $("world").classList.add("hidden"); $("result").classList.add("hidden"); $("area").classList.remove("hidden");
+  let u=U[id],p=areaScore(id),m=mastery(id);
+  $("subjectPill").textContent=(u.subject==="理科"?"🔬 ":"🗾 ")+u.subject+"王国";
+  $("areaTitle").textContent=u.icon+" "+u.name+"エリア";
+  $("areaPct").textContent=p+"%";
+  $("areaState").textContent=state(p);
+  $("areaBar").style.width=p+"%";
+  $("nextGoal").textContent=nextGoal(p);
+  let fs=[...new Set(u.facts.map(x=>x[0]))];
+  $("fieldMap").innerHTML=fs.map(f=>`<div class="fieldCard">
+    <b>${f}</b>
+    <div class="indicator"><div class="bar" style="width:${m[f]||0}%"></div></div>
+    <div class="pct">${m[f]||0}%｜${state(m[f]||0)}</div>
+  </div>`).join("");
+  $("startBtn").onclick=start;
+}
+
+function start(){
+  idx=correct=combo=0;fields={};
+  queue=sh(U[unitId].facts.map((x,i)=>({id:i,field:x[0],term:x[1],meaning:x[2],wrong:x[3]})))
+    .map((f,i)=>({...f,reverse:i%2===1}));
+  $("area").classList.add("hidden"); $("result").classList.add("hidden"); $("game").classList.remove("hidden");
+  showQ();
+}
+
+const mons=["👹","👺","🧌","🐲","🦂","🦇","🐍","🦖","👻","💀"];
+
+function showQ(){
+  locked=false;
+  let x=queue[idx];
+  $("num").textContent=idx+1;
+  $("combo").textContent=combo;
+  $("battleBar").style.width=idx*10+"%";
+  $("monster").textContent=mons[idx];
+  $("monsterName").textContent=x.term+"の魔物";
+  $("hp").style.width="100%";
+  $("mode").textContent=x.reverse?"🔄 逆方向攻撃｜言葉 → 意味":"🎯 正方向攻撃｜意味 → 言葉";
+  $("question").textContent=x.reverse?`「${x.term}」とはどれ？`:x.meaning+"。これは何？";
+  let all=U[unitId].facts.map((z,i)=>({id:i,meaning:z[2]}));
+  let opts=x.reverse?[x.meaning,...sh(all.filter(f=>f.id!==x.id).map(f=>f.meaning)).slice(0,3)]:[x.term,...x.wrong];
+  $("choices").innerHTML="";
+  sh(opts).forEach(o=>{
+    let b=document.createElement("button"); b.className="choice"; b.textContent=o;
+    b.onclick=()=>answer(o); $("choices").appendChild(b);
+  });
+  $("feedback").innerHTML=""; $("nextBtn").classList.add("hidden");
+}
+
+function answer(o){
+  if(locked)return; locked=true;
+  let x=queue[idx],ans=x.reverse?x.meaning:x.term,ok=o===ans;
+  fields[x.field]??={c:0,n:0}; fields[x.field].n++;
+  if(ok){
+    correct++; combo++; fields[x.field].c++;
+    $("hp").style.width="0";
+    $("feedback").className="feedback good";
+    $("feedback").textContent="💥 会心の一撃！ モンスター撃破！";
+  } else {
+    combo=0;
+    $("hp").style.width="55%";
+    $("feedback").className="feedback wrong";
+    $("feedback").innerHTML=`💢 攻撃失敗！<br>正解：${ans}`;
+  }
+  $("combo").textContent=combo; $("nextBtn").classList.remove("hidden");
+}
+
+function finish(){
+  let s=correct*10,h=hist(unitId),prev=h.length?h[h.length-1].score:null,fs={};
+  Object.entries(fields).forEach(([f,x])=>fs[f]=Math.round(x.c/x.n*100));
+  h.push({score:s,fields:fs,date:new Date().toISOString()});
+  localStorage.setItem(key(unitId),JSON.stringify(h));
+  $("game").classList.add("hidden"); $("result").classList.remove("hidden");
+  let r=hero(s),d=prev===null?null:s-prev;
+  $("battleResult").textContent=battle(s);
+  $("score").textContent=s+"%";
+  $("abc").textContent="正式ABC判定："+(s>=80?"A":s>=40?"B":"C");
+  $("rankIcon").textContent=r[0]; $("rankName").textContent=r[1];
+  $("prev").textContent=prev===null?"初回":prev+"%";
+  $("delta").textContent=d===null?"—":(d>=0?"+":"")+d+"pt";
+}
+
+$("nextBtn").onclick=()=>{idx++;idx>=10?finish():showQ()};
+$("mapBtn").onclick=()=>openArea(unitId);
+$("retryBtn").onclick=start;
+renderWorld();
 </script>
-</body>
-</html>
+</body></html>
