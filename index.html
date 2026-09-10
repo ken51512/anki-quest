@@ -44,7 +44,7 @@ button.back{width:auto;margin:0;padding:8px 12px}
 <body><div class="wrap">
 
 <section id="world">
-<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v4.3</div></div>
+<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v4.4</div></div>
 <h1>知識王国マップ</h1><div class="sub">支配地域を広げて、知識の領土を奪え。</div>
 
 <div class="card">
@@ -288,10 +288,30 @@ function start(defense=false){
     let m=mastery(unitId);
     facts=sh(facts).sort((a,b)=>(m[a.field]||100)-(m[b.field]||100)).slice(0,5);
   }else facts=sh(facts);
-  queue=facts.map((f,i)=>({...f,reverse:i%2===1}));
+  queue=facts.map((f,i)=>({...f,reverse:U[unitId].subject==="算数"?false:i%2===1}));
   $("area").classList.add("hidden"); $("result").classList.add("hidden"); $("game").classList.remove("hidden");
   showQ();
 }
+
+
+const MATH_PROMPTS={
+  units:[
+    "1km ＝（　）m","1m ＝（　）cm","1㎡ ＝（　）㎠","1a ＝（　）㎡","1ha ＝（　）a",
+    "1L ＝（　）mL","1㎥ ＝（　）L","1kg ＝（　）g","1t ＝（　）kg","1時間 ＝（　）分"
+  ],
+  formula:[
+    "長方形の面積 ＝（　）","正方形の面積 ＝（　）","三角形の面積 ＝（　）","平行四辺形の面積 ＝（　）","台形の面積 ＝（　）",
+    "円周 ＝（　）","円の面積 ＝（　）","速さ ＝（　）","道のり ＝（　）","時間 ＝（　）"
+  ],
+  multiples:[
+    "2の倍数の見分け方は？","3の倍数の見分け方は？","4の倍数の見分け方は？","5の倍数の見分け方は？","8の倍数の見分け方は？",
+    "9の倍数の見分け方は？","11の倍数の見分け方は？","最小公倍数とは？","最大公約数とは？","素数とは？"
+  ],
+  ratio:[
+    "比べる量 ＝（　）","割合 ＝（　）","もとにする量 ＝（　）","100％ ＝（　）","10％ ＝（　）",
+    "1％ ＝（　）","1割 ＝（　）％","1分 ＝（　）％","1厘 ＝（　）％","a:b の比の値 ＝（　）"
+  ]
+};
 
 const mons=["👹","👺","🧌","🐲","🦂","🦇","🐍","🦖","👻","💀"];
 
@@ -305,10 +325,17 @@ function showQ(){
   currentEnemy=ENEMY_NAMES[idx%ENEMY_NAMES.length];
   $("monsterName").textContent=currentEnemy;
   $("hp").style.width="100%";
-  $("mode").textContent=(isDefense?"🛡️ 防衛戦｜":"")+(x.reverse?"🔄 逆方向攻撃｜言葉 → 意味":"🎯 正方向攻撃｜意味 → 言葉");
-  $("question").textContent=x.reverse?`「${x.term}」とはどれ？`:x.meaning+"。これは何？";
+  const isMath=U[unitId].subject==="算数";
+  $("mode").textContent=isMath
+    ? (isDefense?"🛡️ 防衛戦｜":"")+"🧠 絶対暗記｜公式・定義・単位"
+    : (isDefense?"🛡️ 防衛戦｜":"")+(x.reverse?"🔄 逆方向攻撃｜言葉 → 意味":"🎯 正方向攻撃｜意味 → 言葉");
+  if(isMath){
+    $("question").textContent=(MATH_PROMPTS[unitId]&&MATH_PROMPTS[unitId][x.id])||`${x.term} ＝（　）`;
+  }else{
+    $("question").textContent=x.reverse?`「${x.term}」とはどれ？`:x.meaning+"。これは何？";
+  }
   let all=U[unitId].facts.map((z,i)=>({id:i,meaning:z[2]}));
-  let opts=x.reverse?[x.meaning,...sh(all.filter(f=>f.id!==x.id).map(f=>f.meaning)).slice(0,3)]:[x.term,...x.wrong];
+  let opts=isMath?[x.meaning,...x.wrong]:(x.reverse?[x.meaning,...sh(all.filter(f=>f.id!==x.id).map(f=>f.meaning)).slice(0,3)]:[x.term,...x.wrong]);
   $("choices").innerHTML="";
   sh(opts).forEach(o=>{
     let b=document.createElement("button"); b.className="choice"; b.textContent=o;
@@ -319,7 +346,7 @@ function showQ(){
 
 function answer(o){
   if(locked)return; locked=true;
-  let x=queue[idx],ans=x.reverse?x.meaning:x.term,ok=o===ans;
+  let x=queue[idx],ans=U[unitId].subject==="算数"?x.meaning:(x.reverse?x.meaning:x.term),ok=o===ans;
   fields[x.field]??={c:0,n:0}; fields[x.field].n++;
   if(ok){
     correct++; if(!x.review) baseCorrect++; combo++; fields[x.field].c++; addKill(currentEnemy,isDefense);
@@ -331,7 +358,7 @@ function answer(o){
     if(!isDefense && !x.review && queue.length<14){
       const gap=2+Math.floor(Math.random()*3);
       const pos=Math.min(idx+gap,queue.length);
-      queue.splice(pos,0,{...x,reverse:!x.reverse,review:true});
+      queue.splice(pos,0,{...x,reverse:U[unitId].subject==="算数"?false:!x.reverse,review:true});
     }
     $("hp").style.width="55%";
     $("feedback").className="feedback wrong";
