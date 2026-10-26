@@ -44,7 +44,7 @@ button.back{width:auto;margin:0;padding:8px 12px}
 <body><div class="wrap">
 
 <section id="world">
-<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v4.6</div></div>
+<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v4.6.1</div></div>
 <h1>知識王国マップ</h1><div class="sub">支配地域を広げて、知識の領土を奪え。</div>
 
 <div class="card">
@@ -335,7 +335,23 @@ function showQ(){
     $("question").textContent=x.reverse?`「${x.term}」とはどれ？`:x.meaning+"。これは何？";
   }
   let all=U[unitId].facts.map((z,i)=>({id:i,meaning:z[2]}));
-  let opts=isMath?[x.meaning,...x.wrong]:(x.reverse?[x.meaning,...sh(all.filter(f=>f.id!==x.id).map(f=>f.meaning)).slice(0,3)]:[x.term,...x.wrong]);
+  // 正解を1つだけ確保し、重複した選択肢を取り除く。
+  // 不足分は同じ単元の別項目から補う。4択が揃わなくても停止しない。
+  const answerText=isMath?x.meaning:(x.reverse?x.meaning:x.term);
+  const pool=isMath?all.map(z=>z.meaning):(x.reverse?all.map(z=>z.meaning):U[unitId].facts.map(z=>z[1]));
+  const candidates=isMath?[...x.wrong,...pool]:(x.reverse?[...pool,...x.wrong]:[...x.wrong,...pool]);
+  const normalizeChoice=v=>String(v).normalize("NFKC").replace(/\s+/g,"").trim();
+  const used=new Set([normalizeChoice(answerText)]);
+  const distractors=[];
+  for(const candidate of sh(candidates)){
+    if(typeof candidate!=="string"||!candidate.trim())continue;
+    const normalized=normalizeChoice(candidate);
+    if(used.has(normalized))continue;
+    used.add(normalized);
+    distractors.push(candidate);
+    if(distractors.length===3)break;
+  }
+  let opts=[answerText,...distractors];
   $("choices").innerHTML="";
   sh(opts).forEach(o=>{
     let b=document.createElement("button"); b.className="choice"; b.textContent=o;
