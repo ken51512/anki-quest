@@ -39,13 +39,57 @@ button.back{width:auto;margin:0;padding:8px 12px}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:9px} .stat{background:#22304d;padding:11px;border-radius:14px;text-align:center} .big{font-size:22px;font-weight:900}
 .fieldCard{background:#202e49;border:1px solid #34486d;border-radius:15px;padding:12px}
 .kingdomBar{margin:8px 0 14px}
+
+/* English quest – isolated styles; existing four kingdoms unchanged */
+.eng-shell{max-width:560px;margin:auto}
+.eng-hint{color:#a9b6cc;font-size:13px;line-height:1.65}
+.eng-buttonrow{display:flex;gap:9px;flex-wrap:wrap}
+.eng-buttonrow button{width:auto;flex:1 1 135px;margin-top:6px;min-width:0}
+.eng-buttonrow .back{flex:0 0 auto}
+.eng-tile{border:1px solid #465e86;background:#202e49;border-radius:13px;padding:12px;min-height:76px;text-align:left}
+.eng-tile b{display:block;margin-bottom:7px}
+.eng-tile small{color:#a9b6cc;line-height:1.5}
+.eng-badge{display:inline-block;color:#e8f0ff;border:1px solid #49658f;background:#223a5f;padding:5px 9px;border-radius:10px;font-size:12px;font-weight:bold}
+.eng-badge.positive{border-color:#2c9b73;color:#b6f7d9}
+.eng-badge.pending{border-color:#d5b04c;color:#ffe5a1}
+.eng-panel{padding:15px;border-radius:14px;border:1px solid #3e5678;background:#1c2b48;margin:10px 0}
+.eng-input{display:block;box-sizing:border-box;width:100%;border:1px solid #55709b;background:#0f1b30;color:#fff;border-radius:12px;padding:14px;font-size:18px;min-height:52px}
+.eng-textarea{height:110px;resize:vertical;line-height:1.5}
+.eng-input:focus{outline:2px solid #ffd166;outline-offset:2px}
+.eng-btn-inline{width:auto;display:inline-block;margin:3px;padding:8px 11px;font-size:15px}
+.eng-word{display:inline-block;width:auto;padding:3px 7px;margin:3px 2px;border:1px solid #49648c;border-radius:8px;background:#2b4166;font-size:17px;vertical-align:middle;min-height:34px}
+.eng-word:disabled{opacity:.3}
+.eng-words{line-height:2.8;min-height:48px}
+.eng-english{font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:1.7;word-wrap:break-word}
+.eng-options button{text-align:left}
+.eng-stat{padding:10px;border-radius:11px;background:#243856;min-height:69px}
+.eng-stat strong{display:block;font-size:20px;margin-top:5px}
+.eng-stat small{color:#b3c3de}
+.eng-fine{color:#bfd4ee;font-size:13px;line-height:1.65}
+.eng-warning{color:#ffe4a2;font-size:13px;line-height:1.65}
+.eng-feedback{padding:12px;margin-top:10px;border-radius:12px;line-height:1.7;white-space:pre-wrap}
+.eng-feedback.ok{background:#164e3b}
+.eng-feedback.bad{background:#5b2331}
+.eng-feedback.pending{background:#5a4725}
+.eng-list{max-height:280px;overflow:auto}
+.eng-record{border-bottom:1px solid #334764;padding:10px 0;word-break:break-word;font-size:13px;line-height:1.55}
+.eng-record:last-child{border-bottom:none}
+.eng-quiet{font-size:13px;color:#acc0da}
+.eng-checkline{display:flex;align-items:flex-start;gap:7px;font-size:13px}
+.eng-checkline input{margin-top:4px}
+@media(max-width:390px){.eng-buttonrow button{font-size:14px;padding:12px}.eng-tile{padding:9px}.eng-english{font-size:18px}.eng-input{font-size:16px}}
+
+.eng-shell .q{white-space:pre-wrap}
+
 </style>
 </head>
 <body><div class="wrap">
 
 <section id="world">
-<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v5.0 双方向</div></div>
+<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v6.0 英語統合 双方向</div></div>
 <h1>知識王国マップ</h1><div class="sub">支配地域を広げて、知識の領土を奪え。</div>
+
+<div class="card"><h2>🇬🇧 英語クエスト</h2><p class="sub">読む・書くを強くする。2人別の学習記録・英検3級対策。</p><button class="primary" type="button" id="openEnglishQuest">📘 英語の学習を始める</button></div>
 
 <div class="card">
 <h2>🔬 理科王国</h2>
@@ -143,6 +187,64 @@ button.back{width:auto;margin:0;padding:8px 12px}
 <button class="primary" id="mapBtn">🗺️ 支配マップへ</button>
 <button id="retryBtn">⚔️ 再戦</button>
 </div>
+</section>
+
+<section id="englishApp" class="hidden eng-shell" aria-label="英語クエスト">
+  <div class="top"><button type="button" class="back" id="engBack">← 戻る</button><span class="pill">🇬🇧 英語クエスト</span></div>
+  <div id="engDashboard">
+    <h1>読む・書く 英語クエスト</h1>
+    <p class="sub">聞き取れる英語を、自分で読んで書ける英語へ。</p>
+    <div class="card">
+      <h2>学習者を選ぶ</h2>
+      <div class="eng-buttonrow"><button type="button" id="engP1">学習者1</button><button type="button" id="engP2">学習者2</button></div>
+      <div id="engProfileInfo" class="eng-fine" style="margin-top:10px"></div>
+      <label for="engDisplayName" class="eng-fine">この端末内の表示名（任意）</label>
+      <input id="engDisplayName" class="eng-input" maxlength="20" autocomplete="off" placeholder="表示名" />
+      <button type="button" id="engSaveName" class="eng-btn-inline">表示名を保存</button>
+    </div>
+    <div class="card">
+      <h2>学習を選ぶ</h2>
+      <div class="eng-buttonrow"><button type="button" class="primary" id="engDaily">⚔️ 今日の10分</button><button type="button" id="engDiagnostic">🧭 初回診断</button><button type="button" id="engDue">🔁 復習する</button></div>
+      <div class="grid" id="engModes" style="margin-top:12px"></div>
+    </div>
+    <div class="card"><h2>🏅 学習状況</h2><div class="grid" id="engDashboardStats"></div><p class="eng-fine" id="engNextStudy"></p></div>
+    <div class="eng-buttonrow"><button type="button" id="engParent">📊 保護者画面</button><button type="button" id="engBackup">💾 バックアップ・復元</button></div>
+    <p class="eng-warning">英語記録はこのブラウザだけに保存されます。端末間の自動同期や保護者用パスワードはありません。保存データに実名などの個人情報を入力しないでください。</p>
+  </div>
+  <div id="engPlay" class="hidden">
+    <h1 id="engPlayTitle">英語クエスト</h1>
+    <div class="row"><span class="eng-badge" id="engQuestionCount"></span><span id="engQuestionStage" class="eng-badge"></span></div>
+    <div class="progress"><div class="bar" id="engProgress" style="width:0%"></div></div>
+    <div class="card">
+      <div id="engPrompt" class="q"></div>
+      <div id="engSourceWords" class="eng-english eng-words"></div>
+      <div id="engWordHelp" class="eng-fine" role="status"></div>
+      <div class="eng-buttonrow"><button type="button" id="engAudio" class="hidden">🔈 英語を聞く</button><button type="button" id="engHintBtn">💡 ヒントを開く</button></div>
+      <div id="engHint" class="eng-panel hidden"></div>
+      <div id="engAnswerArea"></div>
+      <div id="engFeedback" role="status"></div>
+      <div class="eng-buttonrow"><button type="button" class="primary" id="engCheck">答え合わせ</button><button type="button" class="primary hidden" id="engContinue">次へ ▶</button></div>
+    </div>
+    <button type="button" id="engLeave">途中で学習を終える</button>
+  </div>
+  <div id="engSummary" class="hidden">
+    <h1>学習結果</h1><div class="card" id="engSummaryBody"></div>
+    <button type="button" class="primary" id="engSummaryReturn">学習メニューへ</button>
+  </div>
+  <div id="engParentPanel" class="hidden">
+    <h1>保護者の学習カルテ</h1>
+    <div class="eng-buttonrow"><button type="button" id="engParentP1">学習者1</button><button type="button" id="engParentP2">学習者2</button></div>
+    <div class="card" id="engParentStats"></div><div class="card"><h2>最近の回答（最大50件）</h2><div id="engParentRecords" class="eng-list"></div></div>
+    <button type="button" id="engParentReturn">英語メニューへ</button>
+  </div>
+  <div id="engBackupPanel" class="hidden"><h1>記録の保存・復元</h1><div class="card">
+    <p class="eng-fine">学習記録をローカルJSONファイルに保存します。ファイルには入力した作文や表示名が含まれるため、取り扱いに注意してください。</p>
+    <button type="button" id="engExport">バックアップをダウンロード</button>
+    <label for="engImportInput" class="eng-fine">以前のバックアップを選ぶ（履歴を統合。既存データは削除しません）</label>
+    <input id="engImportInput" type="file" accept="application/json,.json" class="eng-input"/>
+    <button type="button" id="engImportBtn">バックアップを統合復元</button><p id="engBackupStatus" class="eng-fine"></p>
+    </div><button type="button" id="engBackupReturn">英語メニューへ</button>
+  </div>
 </section>
 
 </div>
@@ -484,5 +586,257 @@ $("nextBtn").onclick=()=>{idx++;idx>=queue.length?finish():showQ()};
 $("mapBtn").onclick=()=>openArea(unitId);
 $("retryBtn").onclick=()=>start(false);
 renderWorld();
+</script>
+<script>
+/* Original English lessons. No learner-identifying information in source. */
+const ENG_CONTENT = (()=>{
+  const words=[
+    ['apple','りんご','あぷる','I eat an apple.',1],
+    ['water','水','うぉーたー','I drink water.',1],
+    ['friend','友達','ふれんど','He is my friend.',1],
+    ['school','学校','すくーる','I go to school.',1],
+    ['book','本','ぶっく','This book is interesting.',1],
+    ['happy','うれしい','はっぴー','I am happy.',1],
+    ['play','遊ぶ／（スポーツを）する','ぷれい','I play soccer.',1],
+    ['read','読む','りーど','I read books.',1],
+    ['write','書く','らいと','I write a letter.',1],
+    ['sister','姉・妹','しすたー','My sister is kind.',1],
+    ['brother','兄・弟','ぶらざー','My brother is tall.',1],
+    ['breakfast','朝食','ぶれくふぁすと','I eat breakfast.',2],
+    ['library','図書館','らいぶらりー','We study at the library.',2],
+    ['yesterday','昨日','いぇすたでい','I played soccer yesterday.',2],
+    ['tomorrow','明日','とぅもろー','I will go tomorrow.',2],
+    ['because','なぜなら・〜だから','びこーず','I like it because it is fun.',2],
+    ['usually','普段は','ゆーじゅありー','I usually get up early.',2],
+    ['sometimes','ときどき','さむたいむず','I sometimes cook dinner.',2],
+    ['favorite','お気に入りの','ふぇいばりっと','This is my favorite book.',2],
+    ['practice','練習する','ぷらくてぃす','I practice English every day.',2],
+    ['interesting','おもしろい','いんたれすてぃんぐ','The story is interesting.',3],
+    ['important','大切な','いんぽーたんと','Reading is important.',3],
+    ['different','異なる','でぃふぁれんと','We have different ideas.',3],
+    ['decide','決める','でぃさいど','I decide to study.',3],
+    ['improve','上達させる','いんぷるーぶ','I want to improve my English.',3],
+    ['environment','環境','えんばいろんめんと','We should protect the environment.',4],
+    ['experience','経験','えくすぴりえんす','It was a good experience.',4],
+    ['opinion','意見','おぴにおん','I have a different opinion.',4],
+    ['convenient','便利な','こんびーにえんと','Trains are convenient.',4],
+    ['communicate','意思を伝え合う','こみゅにけいと','We communicate with friends.',5],
+  ].map((x,i)=>({id:'w'+String(i+1).padStart(2,'0'),en:x[0],ja:x[1],kana:x[2],example:x[3],level:x[4]}));
+  const sentences=[
+    ['私はサッカーをします。',['I play soccer.','I play football.'],'主語 I の次は一般動詞 play。',1],
+    ['私は元気です。',['I am fine.','I am well.'],'I の be動詞は am。',1],
+    ['これは私の本です。',['This is my book.'],'This is ... の形。',1],
+    ['私は水を飲みます。',['I drink water.'],'I + drink + water。',1],
+    ['彼は親切です。',['He is kind.'],'He の be動詞は is。',2],
+    ['彼女は毎日英語を勉強します。',['She studies English every day.'],'She の一般動詞 study は studies。',2],
+    ['私は昨日サッカーをしました。',['I played soccer yesterday.','Yesterday I played soccer.','I played football yesterday.'],'昨日なので過去形 played。',2],
+    ['私は学校へ歩いて行きます。',['I walk to school.','I go to school on foot.'],'walk to ... / on foot。',2],
+    ['あなたは犬を飼っていますか。',['Do you have a dog?'],'一般動詞の疑問文は Do you ...?。',2],
+    ['彼はピアノをひきません。',['He does not play the piano.','He doesn\'t play the piano.'],'He の否定文は does not + 動詞の原形。',3],
+    ['彼らは今、公園で遊んでいます。',['They are playing in the park now.','They are playing in the park.'],'今している動作は are playing。',3],
+    ['私は先週、図書館に行きました。',['I went to the library last week.','Last week I went to the library.'],'go の過去形は went。',3],
+    ['私は英語を上達させたいです。',['I want to improve my English.','I would like to improve my English.'],'want to + 動詞の原形。',3],
+    ['明日は雨が降るでしょう。',['It will rain tomorrow.','Tomorrow it will rain.'],'未来は will + 動詞の原形。',3],
+    ['私は読書が好きです。',['I like reading books.','I like to read books.','I like reading.'],'like + 動名詞、または like to + 動詞。',3],
+    ['私は音楽が好きです。なぜなら楽しいからです。',['I like music because it is fun.','I like music because it\'s fun.'],'because を使って理由を書く。',4],
+    ['私は毎日勉強すべきだと思います。',['I think I should study every day.','I think that I should study every day.'],'I think + 内容。should + 動詞の原形。',4],
+    ['友達と話すことは大切です。',['Talking with friends is important.','It is important to talk with friends.'],'動名詞を主語にするか It is ... to ...。',4],
+    ['もし時間があれば、私は本を読みます。',['If I have time, I will read a book.','I will read a book if I have time.'],'If + 現在形, 主節に will。',5],
+    ['私は先週読んだ本について話したいです。',['I want to talk about the book I read last week.'],'修飾する言葉の語順に注意。',5],
+  ].map((x,i)=>({id:'s'+String(i+1).padStart(2,'0'),ja:x[0],answers:x[1],hint:x[2],level:x[3]}));
+  const readings=[
+    {id:'r1',level:1,passage:'Mika has a blue bag. She goes to school with her brother.',question:'ミカのかばんの色は何色ですか。',choices:['青','赤','黄','緑'],answer:'青',explain:'blue bag（青いかばん）が根拠です。'},
+    {id:'r2',level:2,passage:'Ken likes soccer, but he does not play it on rainy days. On rainy days, he reads books at home.',question:'雨の日にケンがすることは何ですか。',choices:['家で本を読む','サッカーをする','学校で走る','公園で歌う'],answer:'家で本を読む',explain:'On rainy days, he reads books at home. が根拠です。'},
+    {id:'r3',level:2,passage:'Yui gets up at seven every morning. She eats breakfast and walks to school. It takes fifteen minutes.',question:'ユイが学校へ行くのにかかる時間は？',choices:['15分','7分','30分','50分'],answer:'15分',explain:'It takes fifteen minutes. が根拠です。'},
+    {id:'r4',level:3,passage:'It was cold yesterday. Hiro wanted to play outside, but his friend was sick. So Hiro stayed home and made a card for his friend.',question:'ヒロが家でカードを作ったのはなぜですか。',choices:['病気の友達のため','外が暑かったから','誕生日だったから','宿題だったから'],answer:'病気の友達のため',explain:'his friend was sick と made a card for his friend を結びつけます。'},
+    {id:'r5',level:4,passage:'Aya used to take the bus to school. One day she decided to walk instead. At first, walking felt tiring. After a month, she enjoyed watching trees and birds on her way.',question:'本文から分かるアヤの気持ちの変化は？',choices:['歩くことがつらいから楽しいへ','楽しいからこわいへ','好きから嫌いへ','何も変わらなかった'],answer:'歩くことがつらいから楽しいへ',explain:'At first ... tiring と After a month ... enjoyed を対比します。'},
+    {id:'r6',level:5,passage:'Our class started a small garden. Some students wanted flowers, while others wanted vegetables. We talked and decided to grow both. We learned that listening to different opinions can lead to a better idea.',question:'この文章が最も伝えたいことは？',choices:['異なる意見を聞くとよい案が生まれる','花は野菜より育てやすい','一人で決めた方が早い','庭は必ず広くなくてはいけない'],answer:'異なる意見を聞くとよい案が生まれる',explain:'最後の文が主題を直接述べています。'},
+  ];
+  const exam=[
+    {id:'o1',type:'opinion',level:4,prompt:'Do you like reading books?（本を読むのは好きですか）',keywords:['like','book','read'],reasonWords:['because','also','first','second','for example'],target:[25,35]},
+    {id:'o2',type:'opinion',level:4,prompt:'Do you think students should help at home?（子どもは家の手伝いをすべきですか）',keywords:['help','home','family','house'],reasonWords:['because','also','first','second','for example'],target:[25,35]},
+    {id:'o3',type:'opinion',level:5,prompt:'Which do you prefer, studying alone or studying with friends?（1人と友達、どちらと勉強したいですか）',keywords:['study','alone','friend','prefer'],reasonWords:['because','also','first','second','for example'],target:[25,35]},
+    {id:'o4',type:'opinion',level:5,prompt:'Do you want to visit a foreign country?（外国へ行きたいですか）',keywords:['visit','country','travel','want'],reasonWords:['because','also','first','second','for example'],target:[25,35]},
+    {id:'e1',type:'email',level:4,prompt:'From: Alex\nI want to know about your school. What subject do you like? Why do you like it?\n\nAlexの2つの質問に英語で答えましょう。',keywords:['like','subject','because','math','english','science','history'],reasonWords:['because','and','it'],target:[15,25]},
+    {id:'e2',type:'email',level:4,prompt:'From: Emma\nWhat do you usually do on weekends? Who do you spend time with?\n\nEmmaの2つの質問に英語で答えましょう。',keywords:['weekend','friend','family','brother','sister','mother','father','play'],reasonWords:['and','because','with'],target:[15,25]},
+    {id:'e3',type:'email',level:5,prompt:'From: Sam\nWhat food do you like? Where do you usually eat it?\n\nSamの2つの質問に英語で答えましょう。',keywords:['like','food','eat','home','restaurant','school'],reasonWords:['and','because','with'],target:[15,25]},
+    {id:'e4',type:'email',level:5,prompt:'From: Lily\nWhat sports do you like? How often do you play them?\n\nLilyの2つの質問に英語で答えましょう。',keywords:['sport','soccer','tennis','swim','play','week','day'],reasonWords:['and','because','usually','often'],target:[15,25]},
+  ];
+  return {words,sentences,readings,exam};
+})();
+
+/* English Quest integrated without changing legacy four-subject data or storage keys.
+   All checking and records remain on the device. */
+(()=>{
+'use strict';
+const G=id=>document.getElementById(id);
+const PREFIX='aq-eng-v2-', PROFILES=PREFIX+'profiles', USERKEY=id=>PREFIX+'data-'+id;
+const MS_DAY=86400000, INTERVALS=[1,7,30];
+const MODES=[
+  ['word_ja_en','🇯🇵 → 🇬🇧','日本語を見て英単語を書く',1],
+  ['word_en_ja','🇬🇧 → 🇯🇵','英単語の日本語の意味を入力',1],
+  ['word_audio','🔉 → ✍️','聞いた単語をスペルで入力',1],
+  ['audio_sentence','🎧 → 📝','聞こえた英文を入力',2],
+  ['reorder','🔀 語順','単語を並べて英文を作る',2],
+  ['sentence_write','✍️ 英作文','日本語を見て英文を自力で書く',2],
+  ['reading','📖 読解','英文を読んで内容を理解する',2],
+  ['exam_opinion','🎓 意見英作文','英検3級型：意見と理由を英文で書く',4],
+  ['exam_email','📧 Eメール','英検3級型：2つの質問に返信する',4]
+];
+const modeName=id=>(MODES.find(m=>m[0]===id)||['',id])[1];
+const dict=Object.fromEntries(ENG_CONTENT.words.map(w=>[w.en.toLowerCase(),w]));
+const asObj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
+const read=(key,fallback)=>{try{const x=JSON.parse(localStorage.getItem(key));return x??fallback}catch{return fallback}};
+const write=(key,x)=>{try{localStorage.setItem(key,JSON.stringify(x));return true}catch(e){status('保存できませんでした。端末の空き容量やプライベートモードをご確認ください。');return false}};
+const newData=()=>({version:2,level:null,diagnostic:false,entries:[],schedules:{},sessions:[],updatedAt:Date.now()});
+const fetchData=id=>{const x=asObj(read(USERKEY(id),newData()));return {...newData(),...x,entries:Array.isArray(x.entries)?x.entries:[],schedules:asObj(x.schedules),sessions:Array.isArray(x.sessions)?x.sessions:[]}};
+let profiles={p1:{name:''},p2:{name:''}},person='p1',data=newData(),page='menu',session=null,current=null,answerDraft='',choiceValue='',hintUsed=false,audioUsed=false,wordTapCount=0,startedAt=0,locked=false;
+const save=()=>{data.updatedAt=Date.now();write(USERKEY(person),data)};
+const labelFor=p=>profiles[p]?.name?.trim()||('学習者'+(p==='p1'?'1':'2'));
+const esc=s=>String(s).replace(/[&<>"']/g,a=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[a]));
+const random=a=>{let out=[...a];for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out};
+const lev=()=>data.level|| (person==='p1'?4:1);
+const dateText=time=>time?new Date(time).toLocaleDateString('ja-JP'):'未設定';
+const modeKey=i=>i.mode+':'+i.id;
+const status=s=>{let el=G('engBackupStatus');if(el)el.textContent=s};
+function saveProfiles(){write(PROFILES,profiles)}
+function changePerson(p){if(!['p1','p2'].includes(p))return;person=p;data=fetchData(person);page='menu';renderMenu()}
+function open(){G('world').classList.add('hidden');G('area').classList.add('hidden');G('game').classList.add('hidden');G('result').classList.add('hidden');G('englishApp').classList.remove('hidden');show('menu')}
+function close(){G('englishApp').classList.add('hidden');showWorld()}
+function show(which){page=which;for(const [screen,id] of [['menu','engDashboard'],['play','engPlay'],['summary','engSummary'],['parent','engParentPanel'],['backup','engBackupPanel']])G(id).classList.toggle('hidden',which!==screen);if(which==='menu')renderMenu();if(which==='parent')renderParent()}
+function renderMenu(){
+ for(const p of ['p1','p2']){const el=G(p==='p1'?'engP1':'engP2');el.textContent=(p===person?'✓ ':'')+labelFor(p);el.setAttribute('aria-pressed',p===person?'true':'false')}
+ G('engDisplayName').value=profiles[person]?.name||'';
+ const count=data.entries.length,rawCorrect=data.entries.filter(x=>x.status==='correct'&&!x.hintUsed).length, due=Object.values(data.schedules).filter(x=>Number(x.due)<=Date.now()).length;
+ G('engProfileInfo').textContent=`選択中：${labelFor(person)}｜${data.diagnostic?'初回診断済み':'初回診断：未実施'}｜現在の段階 ${lev()}/5`;
+ G('engDashboardStats').innerHTML=`<div class="eng-stat"><small>自力正答率</small><strong>${count?Math.round(rawCorrect/count*100):0}%</strong></div><div class="eng-stat"><small>総回答数</small><strong>${count}</strong></div><div class="eng-stat"><small>復習予定</small><strong>${due}件</strong></div><div class="eng-stat"><small>英語XP</small><strong>${rawCorrect*10} XP</strong></div>`;
+ G('engNextStudy').textContent=count?'現在のレベル：'+(Math.floor(Math.sqrt(rawCorrect*10/100))+1)+'｜ヒントなしで書けた回答をもとに経験値を計算します。':'まず初回診断で現在の理解度を確かめましょう。';
+ G('engModes').replaceChildren();for(const m of MODES){const b=document.createElement('button');b.type='button';b.className='eng-tile';b.innerHTML='<b>'+m[1]+'</b><small>'+m[2]+'</small>';b.onclick=()=>startMode(m[0],8);G('engModes').appendChild(b)}
+}
+function questionBank(mode,level=5){
+ const max=Math.max(1,Math.min(5,level));
+ if(mode.startsWith('word_'))return ENG_CONTENT.words.filter(w=>w.level<=max).map(w=>({mode,id:w.id,item:w}));
+ if(['audio_sentence','reorder','sentence_write'].includes(mode))return ENG_CONTENT.sentences.filter(s=>s.level<=max).map(s=>({mode,id:s.id,item:s}));
+ if(mode==='reading')return ENG_CONTENT.readings.filter(r=>r.level<=max).map(r=>({mode,id:r.id,item:r}));
+ if(mode==='exam_opinion'||mode==='exam_email')return ENG_CONTENT.exam.filter(e=>e.type===(mode==='exam_email'?'email':'opinion')).map(e=>({mode,id:e.id,item:e}));
+ return [];
+}
+function allQuestions(level=5){return MODES.flatMap(x=>questionBank(x[0],level))}
+function dueItems(){const items=allQuestions(5), m=new Map(items.map(x=>[modeKey(x),x]));return Object.entries(data.schedules).filter(([,v])=>v&&Number(v.due)<=Date.now()).map(([key])=>m.get(key)).filter(Boolean)}
+function startMode(mode,n){if(['word_audio','audio_sentence'].includes(mode)&&!localVoice()){G('engProfileInfo').textContent='この端末ではローカル英語音声が利用できないため、この音声問題は開始できません。別の練習を選んでください。';return}let items=random(questionBank(mode,mode.startsWith('exam_')?5:lev()));if(!items.length)items=random(questionBank(mode,5));startSession(items.slice(0,n),'練習：'+modeName(mode))}
+function startDaily(){const due=random(dueItems()).slice(0,4);const defaultModes=lev()<=1?['word_ja_en','word_en_ja','word_audio']:lev()<=2?['word_ja_en','word_en_ja','word_audio','reorder','sentence_write']:['sentence_write','reorder','reading','word_audio','audio_sentence','word_ja_en'];const pool=random(defaultModes.filter(m=>!['word_audio','audio_sentence'].includes(m)||localVoice()).flatMap(m=>questionBank(m,lev()))).filter(x=>!due.some(y=>modeKey(y)===modeKey(x)));startSession([...due,...pool.slice(0,Math.max(0,10-due.length))],'今日の10分チャレンジ')}
+function startDiagnostic(){const pool=[...random(questionBank('word_ja_en',2)).slice(0,2),...random(questionBank('word_en_ja',2)).slice(0,2),...random(questionBank('reorder',3)).slice(0,2),...random(questionBank('sentence_write',4)).slice(0,2),...random(questionBank('reading',4)).slice(0,2)];startSession(random(pool),'初回診断',true)}
+function startReview(){const items=random(dueItems());if(!items.length){G('engProfileInfo').textContent='今日が期限の復習はありません。次の復習日まで新しい単元を学習してください。';return}startSession(items.slice(0,10),'期限が来た復習')}
+function startSession(items,title,diagnostic=false){if(!items.length){G('engProfileInfo').textContent='この条件の問題はまだ登録されていません。';return}session={items,idx:0,results:[],title,diagnostic,start:Date.now()};show('play');showItem()}
+const normalize=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[’‘]/g,"'").replace(/[.,!?;:\"()]/g,'').replace(/\bdoesn't\b/g,'does not').replace(/\bdon't\b/g,'do not').replace(/\bit's\b/g,'it is').replace(/\bi'm\b/g,'i am').replace(/\s+/g,' ').trim();
+const tokens=s=>normalize(s).split(' ').filter(Boolean);
+function distance(a,b){let prev=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const curr=[i];for(let j=1;j<=b.length;j++)curr[j]=Math.min(prev[j]+1,curr[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=curr}return prev[b.length]}
+function localVoice(){if(!('speechSynthesis' in window))return null;try{return speechSynthesis.getVoices().find(v=>/^en([-_]|$)/i.test(v.lang)&&v.localService===true)||null}catch{return null}}
+function speak(text){const v=localVoice();if(!v){G('engWordHelp').textContent='この端末ではローカル英語音声を確認できません。外部の音声サービスには送信しません。';return false}try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=v.lang;u.voice=v;u.rate=.85;speechSynthesis.speak(u);audioUsed=true;return true}catch{G('engWordHelp').textContent='音声を再生できませんでした。';return false}}
+function speechText(x){if(x.mode==='word_audio')return x.item.en;if(x.mode==='audio_sentence')return x.item.answers[0];return ''}
+function buildWordTokens(text,container){container.replaceChildren();const pattern=/([A-Za-z]+(?:['’][A-Za-z]+)?)|([^A-Za-z]+)/g;for(const hit of String(text).matchAll(pattern)){if(hit[1]){const key=hit[1].toLowerCase().replace(/[’]/g,"'");const b=document.createElement('button');b.className='eng-word';b.type='button';b.textContent=hit[1];b.title='単語の意味・発音を確認';b.onclick=()=>{wordTapCount++;hintUsed=true;const w=dict[key];G('engWordHelp').textContent=w?`${w.en}：${w.ja}／読み補助：${w.kana}／例：${w.example}`:`${hit[1]}：辞書未登録（音声は利用できる場合のみ再生）`;speak(hit[1])};container.appendChild(b)}else container.appendChild(document.createTextNode(hit[0]))}}
+function answerInput(multi=false,placeholder='英文をキーボードで入力'){const el=document.createElement(multi?'textarea':'input');el.id='engAnswerText';el.className='eng-input'+(multi?' eng-textarea':'');el.placeholder=placeholder;el.autocomplete='off';el.spellcheck=false;if(multi)el.rows=5;else el.type='text';el.oninput=()=>answerDraft=el.value;return el}
+function renderAnswerArea(x){const box=G('engAnswerArea');box.replaceChildren();const mode=x.mode;
+ if(mode==='reading'){const wrap=document.createElement('div');wrap.className='eng-options';for(const v of random(x.item.choices)){let b=document.createElement('button');b.type='button';b.className='choice';b.textContent=v;b.onclick=()=>{choiceValue=v;for(const c of wrap.children)c.setAttribute('aria-pressed',String(c===b));};wrap.appendChild(b)}box.appendChild(wrap)}
+ else if(mode==='reorder'){
+  const words=random(x.item.answers[0].replace(/[.!?]/g,'').split(' ').map((text,i)=>({text,i})));const pool=document.createElement('div'),selected=document.createElement('div');pool.className='eng-words';selected.className='eng-panel eng-words';selected.setAttribute('aria-label','並べた英文');const chosen=[];
+  function update(){answerDraft=chosen.map(w=>w.text).join(' ');selected.textContent=answerDraft||'ここに単語が並びます'}
+  update();for(const word of words){const b=document.createElement('button');b.type='button';b.className='eng-word';b.textContent=word.text;b.onclick=()=>{chosen.push(word);b.disabled=true;update()};pool.appendChild(b)}
+  const reset=document.createElement('button');reset.type='button';reset.textContent='並べ直す';reset.className='eng-btn-inline';reset.onclick=()=>{chosen.splice(0);for(const b of pool.children)b.disabled=false;update()};box.append('タップした順に英文を作ってください。',selected,pool,reset);
+ }else box.appendChild(answerInput(mode.startsWith('exam_'),mode==='word_en_ja'?'日本語の意味を入力':mode.startsWith('exam_')?'英語で自由に答えてください':'英語をキーボードで入力'));
+}
+function showItem(){current=session.items[session.idx];answerDraft='';choiceValue='';hintUsed=false;audioUsed=false;wordTapCount=0;locked=false;startedAt=Date.now();G('engCheck').classList.remove('hidden');G('engContinue').classList.add('hidden');G('engFeedback').replaceChildren();G('engHint').classList.add('hidden');G('engHint').replaceChildren();G('engWordHelp').textContent='';G('engQuestionCount').textContent=`${session.idx+1} / ${session.items.length}`;G('engQuestionStage').textContent=modeName(current.mode);G('engPlayTitle').textContent=session.title;G('engProgress').style.width=Math.floor(session.idx/session.items.length*100)+'%';
+ const {mode,item}=current;let prompt='',tappable='',audio=false;
+ if(mode==='word_ja_en')prompt=`「${item.ja}」を英語で書こう。`;
+ if(mode==='word_en_ja'){prompt='この英単語の意味を日本語で入力しよう。';tappable=item.en}
+ if(mode==='word_audio'){prompt='音声を聞いて、英単語を入力しよう。';audio=true}
+ if(mode==='audio_sentence'){prompt='英語音声を聞いて、英文を入力しよう。';audio=true}
+ if(mode==='reorder')prompt='日本語を英語にして、単語を正しい順に並べよう。\n'+item.ja;
+ if(mode==='sentence_write')prompt='次の日本語を、ヒントなしで英語に書こう。\n'+item.ja;
+ if(mode==='reading'){prompt=item.question;tappable=item.passage}
+ if(mode.startsWith('exam_'))prompt=(mode==='exam_email'?'Eメールの返信を書こう（15～25語が目安）':'あなたの意見と理由を書こう（25～35語が目安）')+'\n'+item.prompt;
+ G('engPrompt').textContent=prompt;buildWordTokens(tappable,G('engSourceWords'));
+ G('engAudio').classList.toggle('hidden',!audio);if(audio){G('engAudio').textContent=localVoice()?'🔉 英語を聞く':'🔇 ローカル英語音声が利用できません';G('engAudio').disabled=!localVoice()}
+ renderAnswerArea(current);
+}
+function revealHint(){if(!current)return;hintUsed=true;const {mode,item}=current;let str='';if(mode.startsWith('word_'))str=`日本語：${item.ja}\n読み方の補助：${item.kana}\n例文：${item.example}`;
+ else if(mode==='reading')str='ポイント：本文中で、質問に関係する部分を探しましょう。';
+ else if(mode.startsWith('exam_'))str='英作文の順序：結論→理由→具体例。質問の条件を全部満たしたか確認しよう。';
+ else str='文法のヒント：'+item.hint+'\n参考文は答え合わせの後に表示します。';G('engHint').textContent=str;G('engHint').classList.remove('hidden')}
+function gradeEnglish(input,answers){const val=normalize(input);if(!val)return {status:'wrong',category:'未入力',message:'答えを入力してから確認してください。'};
+ const variants=answers.map(normalize);if(variants.includes(val))return {status:'correct',category:'自力再現',message:'正しい英文です。'};
+ const candidate=variants[0],vt=tokens(val),at=tokens(candidate);
+ if(vt.length===at.length&&[...vt].sort().join('|')===[...at].sort().join('|'))return {status:'wrong',category:'語順',message:'同じ単語があっても、並べる位置が違います。主語→動詞→残りの順を確認しましょう。'};
+ if(/\b(he|she|it)\s+(play|like|read|write|study|go|have|do)\b/.test(val))return {status:'wrong',category:'三単現',message:'he・she・it が現在形の主語のときは、一般動詞に s や es を付けるルールを確認しましょう。'};
+ if(/\b(i\s+is|he\s+am|she\s+am|they\s+is|you\s+is|we\s+is)\b/.test(val))return {status:'wrong',category:'be動詞',message:'主語に合った be動詞（I am / he・she is / you・we・they are）を選びましょう。'};
+ if(/\b(am|is|are)\s+(play|like|read|write|study|go|have|drink|want)\b/.test(val))return {status:'wrong',category:'be動詞と一般動詞',message:'現在形の一般動詞の前に am・is・are を付ける必要があるか確認しましょう。'};
+ if(/\b(yesterday|last week)\b/.test(val)&&/\b(play|go|walk|study|visit)\b/.test(val))return {status:'wrong',category:'時制',message:'過去の出来事なら、動詞を過去形にします。'};
+ if(vt.length===at.length&&distance(val,candidate)<=3)return {status:'wrong',category:'スペル',message:'参考文に近いですが、1文字ずつスペルを確認しましょう。'};
+ if(vt.length<=2&&at.length>=5)return {status:'wrong',category:'意味・不足',message:'英文が短すぎます。主語・動詞・必要な情報を入れましょう。'};
+ return {status:'pending',category:'意味・別表現の確認',message:'別の正しい言い方の可能性があります。自動判定では断定できません。保護者画面で確認してください。'};
+}
+function gradeExam(input,e){const words=(input.match(/[a-zA-Z]+(?:['’][a-zA-Z]+)*/g)||[]),lo=normalize(input),count=words.length;
+ const inRange=count>=e.target[0]&&count<=e.target[1];const hasSubject=/\b(i|we|you|he|she|they|it)\b/.test(lo);const hasVerb=/\b(am|is|are|have|has|like|want|think|play|go|study|read|eat|help|do|did|can|will|prefer)\b/.test(lo);const reason=e.reasonWords.some(w=>lo.includes(w));const topic=e.keywords.some(w=>lo.includes(w));
+ let notes=[];if(!inRange)notes.push(`語数：${count}語（練習目安 ${e.target[0]}～${e.target[1]}語）`);else notes.push(`語数：${count}語（目安内）`);
+ notes.push('内容：'+(topic?'関連語を検出':'設問に答えているか要確認'));
+ notes.push('構成：'+(reason?'理由・追加説明の手がかりあり':'理由や説明があるか確認'));
+ notes.push('語彙：文脈に合う語を使っているか要確認');
+ notes.push('文法：'+(hasSubject&&hasVerb?'主語・動詞の手がかりあり（正確さは要確認）':'主語と動詞を見直しましょう'));
+ return {status:'pending',category:'自由英作文・要確認',wordCount:count,message:'自動では作文の意味・自然さを正確に判定できません。\n'+notes.join('\n')};
+}
+function gradeQuestion(x,value){const {mode,item}=x;
+ if(mode.startsWith('exam_'))return gradeExam(String(value),item);
+ if(mode==='reading')return String(value)===item.answer?{status:'correct',category:'読解',message:item.explain}:{status:'wrong',category:'読解',message:'正解：'+item.answer+'\n'+item.explain};
+ if(mode==='word_en_ja'){const opts=item.ja.split(/[／・、]/).map(x=>x.replace(/[()（）]/g,'').trim());const t=String(value).trim().replace(/\s+/g,'');if(opts.some(o=>o===t))return {status:'correct',category:'意味',message:'正しく意味を理解しています。'};if(!t)return {status:'wrong',category:'未入力',message:'日本語で意味を入力しましょう。'};return {status:'pending',category:'意味・言い換え確認',message:`模範の意味：${item.ja}\n日本語の言い換えの可能性があるため、保護者画面で確認してください。`}}
+ if(mode==='word_ja_en'||mode==='word_audio'){const t=normalize(value),ans=normalize(item.en);if(t===ans)return {status:'correct',category:'スペル',message:'正しいスペルです。'};return {status:'wrong',category:'スペル',message:`正解は ${item.en} です。${t?`文字の違いはおよそ${distance(t,ans)}か所です。`:'空欄です。'}`}}
+ const ans=item.answers;if(mode==='reorder'){const result=gradeEnglish(String(value),ans);if(result.status==='pending')return {status:'wrong',category:'語順',message:'単語をすべて使い、正しい語順に並べましょう。\n参考：'+ans[0]};return result}
+ return gradeEnglish(String(value),ans);
+}
+function checkAnswer(){if(locked||!session||!current)return;let val=current.mode==='reading'?choiceValue:answerDraft;const result=gradeQuestion(current,val);if(!String(val).trim()&&current.mode!=='reading'){G('engFeedback').className='eng-feedback bad';G('engFeedback').textContent='答えを入力してください。';return}
+ if(current.mode==='reading'&&!choiceValue){G('engFeedback').className='eng-feedback bad';G('engFeedback').textContent='選択肢を選んでください。';return}
+ locked=true;const statusCode=result.status, selfCorrect=statusCode==='correct'&&!hintUsed;const id=`${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
+ const entry={id,profile:person,qid:current.id,mode:current.mode,answer:String(val).slice(0,1000),status:statusCode,category:result.category,hintUsed,audioUsed,wordTapCount,seconds:Math.max(1,Math.round((Date.now()-startedAt)/1000)),at:Date.now(),reviewKey:modeKey(current),wordCount:result.wordCount||null};
+ data.entries.push(entry);const sched=asObj(data.schedules[entry.reviewKey]),oldStep=Number(sched.step)||0;const nextStep=selfCorrect?Math.min(oldStep+1,2):0;
+ // The first answer is followed by a 1-day check; later unassisted recalls use 7/30 days.
+ const days=selfCorrect?(sched.due?INTERVALS[Math.min(nextStep,2)]:1):1;
+ data.schedules[entry.reviewKey]={step:nextStep,due:Date.now()+days*MS_DAY,lastAt:Date.now(),reason:selfCorrect?'自力正解':statusCode==='pending'?'要確認':hintUsed?'ヒント使用':'誤答'};
+ session.results.push(entry);save();
+ let text=(statusCode==='correct'?(hintUsed?'△ ヒントを使った正解（復習対象）':'○ 自力正解！'):statusCode==='wrong'?'× もう一度理解しよう':'？ 保護者の確認が必要')+'\n分類：'+result.category+'\n'+result.message;
+ if(['sentence_write','reorder','audio_sentence'].includes(current.mode))text+='\n参考文：'+current.item.answers[0];
+ G('engFeedback').className='eng-feedback '+(statusCode==='correct'?'ok':statusCode==='pending'?'pending':'bad');G('engFeedback').textContent=text;
+ G('engCheck').classList.add('hidden');G('engContinue').classList.remove('hidden');G('engContinue').textContent=session.idx===session.items.length-1?'結果へ ▶':'次へ ▶';
+}
+function continueNext(){if(!session)return;session.idx++;if(session.idx>=session.items.length){finishSession();return}showItem()}
+function finishSession(){const total=session.results.length,unassisted=session.results.filter(x=>x.status==='correct'&&!x.hintUsed).length,s=Math.round((unassisted/total)*100),rank=s>=80?'A':s>=40?'B':'C';
+ if(session.diagnostic){data.diagnostic=true;data.level=s>=80?4:s>=40?2:1}else if(!session.title.startsWith('練習：')){if(s<40)data.level=Math.max(1,lev()-1);else if(s>=80&&data.diagnostic)data.level=Math.min(5,lev()+1)}
+ const row={id:Date.now()+'-'+Math.random().toString(36).slice(2,7),at:Date.now(),title:session.title,total,unassisted,score:s,rank,seconds:Math.round((Date.now()-session.start)/1000),level:lev()};data.sessions.push(row);save();G('engSummaryBody').replaceChildren();const content=document.createElement('div');content.innerHTML=`<div class="center"><div class="score">${s}%</div><div class="rankname">ABC判定：${rank}</div><p class="eng-fine">自力正答 ${unassisted} / ${total}問（ヒント使用正解・要確認は含めない）</p><p class="eng-fine">レベル ${lev()}/5 ｜ 今回の回答 ${total}問 ｜ 学習時間 約${row.seconds}秒</p></div><p class="eng-warning">B・Cは再学習と別問題で補強しましょう。Aのあとも時間を空けて復習します。</p>`;G('engSummaryBody').appendChild(content);session=null;current=null;show('summary')}
+function renderParent(){for(const p of ['p1','p2'])G(p==='p1'?'engParentP1':'engParentP2').textContent=(p===person?'✓ ':'')+labelFor(p);const rows=data.entries,clean=rows.filter(x=>x.status==='correct'&&!x.hintUsed),pending=rows.filter(x=>x.status==='pending'),hint=rows.filter(x=>x.hintUsed),secs=rows.reduce((a,x)=>a+(Number(x.seconds)||0),0),due=dueItems().length;
+ const by=MODES.map(m=>{const subset=rows.filter(x=>x.mode===m[0]);return subset.length?{name:m[1],n:subset.length,r:Math.round(subset.filter(x=>x.status==='correct'&&!x.hintUsed).length/subset.length*100)}:null}).filter(Boolean).sort((a,b)=>a.r-b.r);
+ const types={};rows.forEach(x=>{if(x.status!=='correct'){types[x.category]=(types[x.category]||0)+1}});
+ const stat=G('engParentStats');stat.replaceChildren();let info=document.createElement('div');info.innerHTML=`<h2>学習カルテ</h2><div class="grid"><div class="eng-stat"><small>自力正答率</small><strong>${rows.length?Math.round(clean.length/rows.length*100):0}%</strong></div><div class="eng-stat"><small>回答／学習回数</small><strong>${rows.length} / ${data.sessions.length}</strong></div><div class="eng-stat"><small>学習時間</small><strong>${Math.round(secs/60)}分</strong></div><div class="eng-stat"><small>復習期限</small><strong>${due}件</strong></div><div class="eng-stat"><small>レベル</small><strong>${lev()}/5</strong></div><div class="eng-stat"><small>要確認</small><strong>${pending.length}件</strong></div></div><p class="eng-fine">ヒント利用 ${hint.length}件。レベル推移：${esc(data.sessions.slice(-8).map(x=>x.level).join(' → ')||'まだ記録なし')}</p>`;stat.appendChild(info);
+ const weak=document.createElement('p');weak.className='eng-fine';weak.textContent='弱点（出題方向別）：'+(by.length?by.map(x=>`${x.name} ${x.r}%（${x.n}問）`).join(' ／ '):'まだ記録なし')+'\n誤答分類：'+(Object.keys(types).length?Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} ${v}`).join(' ／ '):'なし');stat.appendChild(weak);
+ const list=G('engParentRecords');list.replaceChildren();for(const x of rows.slice(-50).reverse()){const el=document.createElement('div');el.className='eng-record';const statusText=x.status==='correct'?(x.hintUsed?'△ ヒント使用':'○ 正解'):x.status==='wrong'?'× 誤答':'？ 要確認';el.textContent=`${dateText(x.at)}｜${modeName(x.mode)}｜${statusText}\n回答：${x.answer.slice(0,230)}\n原因：${x.category}｜${x.seconds}秒`;if(x.status==='pending')for(const [label,statCode] of [['正答として承認','correct'],['復習対象にする','wrong']]){const b=document.createElement('button');b.className='eng-btn-inline';b.textContent=label;b.onclick=()=>{x.status=statCode;x.category=statCode==='correct'?'保護者承認':'保護者判定・再学習';if(statCode==='wrong')data.schedules[x.reviewKey]={step:0,due:Date.now()+MS_DAY,lastAt:Date.now(),reason:'保護者判定'};save();renderParent()};el.appendChild(b)}list.appendChild(el)}
+ if(!rows.length)list.textContent='まだ学習履歴がありません。';
+}
+function exportData(){const packageData={format:'anki-quest-english-v2',exportedAt:new Date().toISOString(),profiles,data:{p1:fetchData('p1'),p2:fetchData('p2')}};const blob=new Blob([JSON.stringify(packageData,null,2)],{type:'application/json'});const href=URL.createObjectURL(blob),link=document.createElement('a');link.href=href;link.download='anki-english-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(href),1500);status('バックアップファイルを作成しました。実名や回答を含む場合は共有しないでください。')}
+function mergeData(oldData,incoming){const merged={...newData(),...oldData};const existing=new Map(merged.entries.map(e=>[e.id,e]));for(const row of incoming.entries||[])if(row&&typeof row.id==='string'&&typeof row.mode==='string'&&['correct','wrong','pending'].includes(row.status)){existing.set(row.id,existing.has(row.id)?existing.get(row.id):row)}merged.entries=[...existing.values()].sort((a,b)=>Number(a.at)-Number(b.at)).slice(-30000);
+ const sess=new Map((merged.sessions||[]).filter(x=>x.id).map(x=>[x.id,x]));for(const s of incoming.sessions||[])if(s&&s.id&&!sess.has(s.id))sess.set(s.id,s);merged.sessions=[...sess.values()].sort((a,b)=>a.at-b.at);
+ const sch={...incoming.schedules,...merged.schedules};for(const [k,v] of Object.entries(incoming.schedules||{})){const a=merged.schedules[k];if(!a||Number(v.lastAt)>Number(a.lastAt))sch[k]=v}merged.schedules=sch;if(!merged.diagnostic&&incoming.diagnostic){merged.diagnostic=true;merged.level=incoming.level}return merged}
+async function importData(){const file=G('engImportInput').files?.[0];if(!file){status('復元するJSONを選んでください。');return}if(file.size>2*1024*1024){status('安全のため2MBを超えるファイルは読み込みません。');return}try{const value=JSON.parse(await file.text());if(value.format!=='anki-quest-english-v2'||!value.data||!value.data.p1||!value.data.p2||!Array.isArray(value.data.p1.entries)||!Array.isArray(value.data.p2.entries))throw Error('形式が正しくありません');for(const p of ['p1','p2']){const v=mergeData(fetchData(p),value.data[p]);if(!write(USERKEY(p),v))throw Error('保存に失敗しました');if(!profiles[p].name&&typeof value.profiles?.[p]?.name==='string')profiles[p].name=value.profiles[p].name.slice(0,20)}saveProfiles();data=fetchData(person);status('2人分の履歴を既存データを消さずに統合しました。');renderMenu()}catch(e){status('読み込みできませんでした：'+e.message)}}
+function bind(){
+ const p=read(PROFILES,{});profiles={p1:{name:typeof p.p1?.name==='string'?p.p1.name.slice(0,20):''},p2:{name:typeof p.p2?.name==='string'?p.p2.name.slice(0,20):''}};data=fetchData(person);
+ G('openEnglishQuest').onclick=open;G('engBack').onclick=close;G('engP1').onclick=()=>changePerson('p1');G('engP2').onclick=()=>changePerson('p2');G('engSaveName').onclick=()=>{profiles[person].name=G('engDisplayName').value.trim().slice(0,20);saveProfiles();renderMenu()};G('engDaily').onclick=startDaily;G('engDiagnostic').onclick=startDiagnostic;G('engDue').onclick=startReview;G('engParent').onclick=()=>show('parent');G('engBackup').onclick=()=>show('backup');G('engHintBtn').onclick=revealHint;G('engAudio').onclick=()=>current&&speak(speechText(current));G('engCheck').onclick=checkAnswer;G('engContinue').onclick=continueNext;G('engLeave').onclick=()=>{session=null;current=null;show('menu')};G('engSummaryReturn').onclick=()=>show('menu');G('engParentP1').onclick=()=>changePersonAndShow('p1','parent');G('engParentP2').onclick=()=>changePersonAndShow('p2','parent');G('engParentReturn').onclick=()=>show('menu');G('engBackupReturn').onclick=()=>show('menu');G('engExport').onclick=exportData;G('engImportBtn').onclick=importData;renderMenu();
+}
+function changePersonAndShow(p,page){changePerson(p);show(page)}
+// Expose narrow read-only test diagnostics without exposing private study records.
+window.ankiEnglishDiagnostics=()=>({modeCount:MODES.length,questionCounts:Object.fromEntries(MODES.map(m=>[m[0],questionBank(m[0],5).length])),profile:person,recordCount:data.entries.length});
+bind();
+})();
+
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js', { updateViaCache:'none' }).catch(()=>{}));
+}
 </script>
 </body></html>
