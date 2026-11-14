@@ -86,7 +86,7 @@ button.back{width:auto;margin:0;padding:8px 12px}
 <body><div class="wrap">
 
 <section id="world">
-<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v6.0 英語統合 双方向</div></div>
+<div class="top"><div class="pill">⚔️ 暗記クエスト</div><div class="pill">試作版 v6.0.1 英語統合 双方向</div></div>
 <h1>知識王国マップ</h1><div class="sub">支配地域を広げて、知識の領土を奪え。</div>
 
 <div class="card"><h2>🇬🇧 英語クエスト</h2><p class="sub">読む・書くを強くする。2人別の学習記録・英検3級対策。</p><button class="primary" type="button" id="openEnglishQuest">📘 英語の学習を始める</button></div>
@@ -685,6 +685,50 @@ const MODES=[
 ];
 const modeName=id=>(MODES.find(m=>m[0]===id)||['',id])[1];
 const dict=Object.fromEntries(ENG_CONTENT.words.map(w=>[w.en.toLowerCase(),w]));
+// 日本語の別表記は単語ごとに明示登録する（機械的な漢字・ひらがな変換は誤認の危険）。
+// 追加前に意味が一致することを確認し、同音異義語などは無理に自動正解にしない。
+const JA_ALIASES={
+ apple:['林檎','りんご','リンゴ'],
+ water:['水','みず','お水','おみず'],
+ friend:['友達','友だち','ともだち','友人','ゆうじん','友'],
+ school:['学校','がっこう'],
+ book:['本','ほん','書物','しょもつ'],
+ happy:['うれしい','嬉しい','幸せ','しあわせ','楽しい','たのしい'],
+ play:['遊ぶ','あそぶ','遊びます','スポーツをする','する','プレーする','プレイする'],
+ read:['読む','よむ','読みます'],
+ write:['書く','かく','書きます'],
+ sister:['姉','あね','お姉さん','おねえさん','妹','いもうと','姉妹','しまい'],
+ brother:['兄','あに','お兄さん','おにいさん','弟','おとうと','兄弟','きょうだい','男兄弟','男性の兄弟'],
+ breakfast:['朝食','ちょうしょく','朝ご飯','あさごはん','朝ごはん','朝飯','あさめし'],
+ library:['図書館','としょかん'],
+ yesterday:['昨日','きのう','さくじつ'],
+ tomorrow:['明日','あした','あす','みょうにち'],
+ because:['なぜなら','何故なら','なぜならば','何故ならば','だから','〜だから','から'],
+ usually:['普段は','ふだんは','普段','ふだん','通常は','通常','いつもは','たいてい','大抵'],
+ sometimes:['時々','ときどき','時には','ときには','たまに'],
+ favorite:['お気に入りの','おきにいりの','大好きな','だいすきな','一番好きな','いちばんすきな'],
+ practice:['練習する','れんしゅうする','練習をする','練習します'],
+ interesting:['面白い','おもしろい','興味深い','きょうみぶかい'],
+ important:['大切な','たいせつな','重要な','じゅうような','大事な','だいじな'],
+ different:['異なる','ことなる','違う','ちがう','別の','べつの'],
+ decide:['決める','きめる','決定する','けっていする'],
+ improve:['上達させる','じょうたつさせる','改善する','かいぜんする','よくする','向上させる','こうじょうさせる'],
+ environment:['環境','かんきょう'],
+ experience:['経験','けいけん','体験','たいけん'],
+ opinion:['意見','いけん','考え','かんがえ'],
+ convenient:['便利な','べんりな','便利','べんり'],
+ communicate:['意思を伝え合う','いしをつたえあう','伝え合う','つたえあう','意思疎通する','いしそつうする','コミュニケーションを取る','コミュニケーションをとる']
+};
+function normalizeJapaneseMeaning(value){
+ return String(value||'').normalize('NFKC').trim().replace(/[\s\u3000・、。!！?？「」『』（）()]/g,'').replace(/[～〜]/g,'~');
+}
+function acceptedJapaneseMeanings(item){
+ const registered=JA_ALIASES[item.en.toLowerCase()]||[];
+ // 訳の区切りだけを分解する。「／（スポーツを）する」等は手動登録側で扱う。
+ const meanings=[...registered,item.ja,...item.ja.split(/[／・、]/)];
+ return new Set(meanings.map(normalizeJapaneseMeaning).filter(Boolean));
+}
+
 const asObj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 const read=(key,fallback)=>{try{const x=JSON.parse(localStorage.getItem(key));return x??fallback}catch{return fallback}};
 const write=(key,x)=>{try{localStorage.setItem(key,JSON.stringify(x));return true}catch(e){status('保存できませんでした。端末の空き容量やプライベートモードをご確認ください。');return false}};
@@ -734,7 +778,7 @@ function distance(a,b){let prev=Array.from({length:b.length+1},(_,i)=>i);for(let
 function localVoice(){if(!('speechSynthesis' in window))return null;try{return speechSynthesis.getVoices().find(v=>/^en([-_]|$)/i.test(v.lang)&&v.localService===true)||null}catch{return null}}
 function speak(text){const v=localVoice();if(!v){G('engWordHelp').textContent='この端末ではローカル英語音声を確認できません。外部の音声サービスには送信しません。';return false}try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=v.lang;u.voice=v;u.rate=.85;speechSynthesis.speak(u);audioUsed=true;return true}catch{G('engWordHelp').textContent='音声を再生できませんでした。';return false}}
 function speechText(x){if(x.mode==='word_audio')return x.item.en;if(x.mode==='audio_sentence')return x.item.answers[0];return ''}
-function buildWordTokens(text,container){container.replaceChildren();const pattern=/([A-Za-z]+(?:['’][A-Za-z]+)?)|([^A-Za-z]+)/g;for(const hit of String(text).matchAll(pattern)){if(hit[1]){const key=hit[1].toLowerCase().replace(/[’]/g,"'");const b=document.createElement('button');b.className='eng-word';b.type='button';b.textContent=hit[1];b.title='単語の意味・発音を確認';b.onclick=()=>{wordTapCount++;hintUsed=true;const w=dict[key];G('engWordHelp').textContent=w?`${w.en}：${w.ja}／読み補助：${w.kana}／例：${w.example}`:`${hit[1]}：辞書未登録（音声は利用できる場合のみ再生）`;speak(hit[1])};container.appendChild(b)}else container.appendChild(document.createTextNode(hit[0]))}}
+function buildWordTokens(text,container){container.replaceChildren();const pattern=/([A-Za-z]+(?:['’][A-Za-z]+)?)|([^A-Za-z]+)/g;for(const hit of String(text).matchAll(pattern)){if(hit[1]){const key=hit[1].toLowerCase().replace(/[’]/g,"'");const b=document.createElement('button');b.className='eng-word';b.type='button';b.textContent=hit[1];b.title='単語の意味・発音を確認';b.onclick=()=>{wordTapCount++;hintUsed=true;const w=dict[key];G('engWordHelp').textContent=w?(current?.mode==='word_en_ja'?`${w.en}：発音の補助 ${w.kana}（日本語の正解は答え合わせ後に表示）`:`${w.en}：${w.ja}／読み補助：${w.kana}／例：${w.example}`):`${hit[1]}：辞書未登録（音声は利用できる場合のみ再生）`;speak(hit[1])};container.appendChild(b)}else container.appendChild(document.createTextNode(hit[0]))}}
 function answerInput(multi=false,placeholder='英文をキーボードで入力'){const el=document.createElement(multi?'textarea':'input');el.id='engAnswerText';el.className='eng-input'+(multi?' eng-textarea':'');el.placeholder=placeholder;el.autocomplete='off';el.spellcheck=false;if(multi)el.rows=5;else el.type='text';el.oninput=()=>answerDraft=el.value;return el}
 function renderAnswerArea(x){const box=G('engAnswerArea');box.replaceChildren();const mode=x.mode;
  if(mode==='reading'){const wrap=document.createElement('div');wrap.className='eng-options';for(const v of random(x.item.choices)){let b=document.createElement('button');b.type='button';b.className='choice';b.textContent=v;b.onclick=()=>{choiceValue=v;for(const c of wrap.children)c.setAttribute('aria-pressed',String(c===b));};wrap.appendChild(b)}box.appendChild(wrap)}
@@ -759,7 +803,9 @@ function showItem(){current=session.items[session.idx];answerDraft='';choiceValu
  G('engAudio').classList.toggle('hidden',!audio);if(audio){G('engAudio').textContent=localVoice()?'🔉 英語を聞く':'🔇 ローカル英語音声が利用できません';G('engAudio').disabled=!localVoice()}
  renderAnswerArea(current);
 }
-function revealHint(){if(!current)return;hintUsed=true;const {mode,item}=current;let str='';if(mode.startsWith('word_'))str=`日本語：${item.ja}\n読み方の補助：${item.kana}\n例文：${item.example}`;
+function revealHint(){if(!current)return;hintUsed=true;const {mode,item}=current;let str='';if(mode==='word_ja_en')str='まず、英語の最初の音や文字を思い出しましょう。\n一文字目：'+item.en.slice(0,1).toUpperCase()+'　／　文字数：'+item.en.length+'文字\n※答えそのものと英文例は答え合わせ後に表示します。';
+ else if(mode==='word_en_ja')str='英語の例文：'+item.example+'\n文の中でこの単語がどんな役割か考えましょう。\n※日本語訳は答え合わせ後に表示します。';
+ else if(mode==='word_audio')str='音を聞き直して、聞こえた音を1つずつ文字にしましょう。\n聞き取れないときは音声ボタンで再生できます。\n※単語のつづりは答え合わせ後に表示します。';
  else if(mode==='reading')str='ポイント：本文中で、質問に関係する部分を探しましょう。';
  else if(mode.startsWith('exam_'))str='英作文の順序：結論→理由→具体例。質問の条件を全部満たしたか確認しよう。';
  else str='文法のヒント：'+item.hint+'\n参考文は答え合わせの後に表示します。';G('engHint').textContent=str;G('engHint').classList.remove('hidden')}
@@ -787,7 +833,7 @@ function gradeExam(input,e){const words=(input.match(/[a-zA-Z]+(?:['’][a-zA-Z]
 function gradeQuestion(x,value){const {mode,item}=x;
  if(mode.startsWith('exam_'))return gradeExam(String(value),item);
  if(mode==='reading')return String(value)===item.answer?{status:'correct',category:'読解',message:item.explain}:{status:'wrong',category:'読解',message:'正解：'+item.answer+'\n'+item.explain};
- if(mode==='word_en_ja'){const opts=item.ja.split(/[／・、]/).map(x=>x.replace(/[()（）]/g,'').trim());const t=String(value).trim().replace(/\s+/g,'');if(opts.some(o=>o===t))return {status:'correct',category:'意味',message:'正しく意味を理解しています。'};if(!t)return {status:'wrong',category:'未入力',message:'日本語で意味を入力しましょう。'};return {status:'pending',category:'意味・言い換え確認',message:`模範の意味：${item.ja}\n日本語の言い換えの可能性があるため、保護者画面で確認してください。`}}
+ if(mode==='word_en_ja'){const t=normalizeJapaneseMeaning(value);if(!t)return {status:'wrong',category:'未入力',message:'日本語で意味を入力しましょう。'};if(acceptedJapaneseMeanings(item).has(t))return {status:'correct',category:'意味',message:'正しく意味を理解しています。日本語の別表記・言い換えも正解です。'};return {status:'pending',category:'意味・言い換え確認',message:`模範の意味：${item.ja}\n別の正しい訳の可能性があります。保護者画面で確認してください。`}}
  if(mode==='word_ja_en'||mode==='word_audio'){const t=normalize(value),ans=normalize(item.en);if(t===ans)return {status:'correct',category:'スペル',message:'正しいスペルです。'};return {status:'wrong',category:'スペル',message:`正解は ${item.en} です。${t?`文字の違いはおよそ${distance(t,ans)}か所です。`:'空欄です。'}`}}
  const ans=item.answers;if(mode==='reorder'){const result=gradeEnglish(String(value),ans);if(result.status==='pending')return {status:'wrong',category:'語順',message:'単語をすべて使い、正しい語順に並べましょう。\n参考：'+ans[0]};return result}
  return gradeEnglish(String(value),ans);
@@ -803,6 +849,8 @@ function checkAnswer(){if(locked||!session||!current)return;let val=current.mode
  session.results.push(entry);save();
  let text=(statusCode==='correct'?(hintUsed?'△ ヒントを使った正解（復習対象）':'○ 自力正解！'):statusCode==='wrong'?'× もう一度理解しよう':'？ 保護者の確認が必要')+'\n分類：'+result.category+'\n'+result.message;
  if(['sentence_write','reorder','audio_sentence'].includes(current.mode))text+='\n参考文：'+current.item.answers[0];
+ if(current.mode==='word_ja_en'||current.mode==='word_audio')text+='\n正解：'+current.item.en+'（'+current.item.ja+'）';
+ if(current.mode==='word_en_ja')text+='\n参考の意味：'+current.item.ja;
  G('engFeedback').className='eng-feedback '+(statusCode==='correct'?'ok':statusCode==='pending'?'pending':'bad');G('engFeedback').textContent=text;
  G('engCheck').classList.add('hidden');G('engContinue').classList.remove('hidden');G('engContinue').textContent=session.idx===session.items.length-1?'結果へ ▶':'次へ ▶';
 }
